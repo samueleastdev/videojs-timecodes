@@ -63,6 +63,8 @@ class Frames extends Plugin {
 
         this.on('updateDisplay', this.updateDisplay);
 
+        this.on(player, ['seeking'], this.updateDisplay);
+
         this.player.on('keydown', this.keyDown);
 
         

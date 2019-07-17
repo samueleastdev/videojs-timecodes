@@ -41,6 +41,31 @@
 
 .vjs-timecode-menu {
       width: auto !important;
-    font-size: 12px !important;
-    padding: 9px !important;
+    font-size: 18px !important;
+    padding: 15px !important;
+}
+
+.vjs-icon-cog {
+  font-size: 18px !important;
+}
+ 
+.vjs-om-menu-header {
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: left;
+    padding: 8px;
+    background: black;
+}
+
+.vjs-frames .vjs-control-bar {
+    font-size: 1.2em !important;
+    height: 4em !important;
+    padding: 0 1% !important;
+}
+
+.vjs-frames .vjs-button > .vjs-icon-placeholder:before {
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    justify-content: center;
 }
