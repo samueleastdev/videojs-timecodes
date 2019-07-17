@@ -106,28 +106,28 @@ class Frames extends Plugin {
 
         this.player.getChild('controlBar').el().insertBefore(
             this.player.getChild('controlBar').getChild('timeDisplay').el(),
-            this.player.getChild('controlBar').getChild('ratesButton').el()
+            this.player.getChild('controlBar').getChild('timecodeButton').el()
         );
 
 
     }
 
     createMenu(){
-
+ 
         var that = this; 
 
-        var RatesButton = videojs.extend(MenuButton, {
+        var TimecodeButton = videojs.extend(MenuButton, {
             constructor: function() {
 
                 MenuButton.apply(this, arguments);
-                this.addClass('vjs-icon-cog');
-                this.addClass('vjs-menu-button');
-                this.addClass('vjs-menu-button-popup');
+
                 this.addClass('vjs-button');
                 this.addClass('vjs-setting-menu-om'); // needed for cleanup
                 this.controlText("Rates");
 
-                // Get the menu ul
+                this.children_[0].addClass('vjs-icon-cog');
+
+                // Get the menu ul 
                 var menuUL = this.el().children[1].children[0];
 
                 var header = document.createElement("li");
@@ -191,10 +191,10 @@ class Frames extends Plugin {
             }
         });
 
-        videojs.registerComponent('ratesButton', RatesButton);
-        this.player.getChild('controlBar').addChild('ratesButton', {});
+        videojs.registerComponent('timecodeButton', TimecodeButton);
+        this.player.getChild('controlBar').addChild('timecodeButton', {});
         this.player.getChild('controlBar').el().insertBefore(
-            this.player.getChild('controlBar').getChild('ratesButton').el(),
+            this.player.getChild('controlBar').getChild('timecodeButton').el(),
             this.player.getChild('controlBar').getChild('fullscreenToggle').el()
         );
 
