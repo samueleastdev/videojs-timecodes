@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>videojs-frames Demo</title>
+  <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
+  <link href="dist/videojs-frames.css" rel="stylesheet">
+</head>
+<body>
+  <video id="videojs-frames-player" class="video-js vjs-default-skin" controls muted>
+    <source src="http://vjs.zencdn.net/v/oceans.mp4" type='video/mp4'>
+    <source src="http://vjs.zencdn.net/v/oceans.webm" type='video/webm'>
+  </video>
+  <ul>
+    <li><a href="/test/debug.html">Run unit tests in browser.</a></li>
+    <li><a href="docs/api/">Read generated docs.</a></li>
+    <li><button id='smpte'>smpte</button></li>
+    <li><button id='frames'>frames</button></li>
+    <li><button id='seconds'>seconds</button></li>
+    <li><button id='miliseconds'>miliseconds</button></li>
+  </ul>
+  <script src="node_modules/video.js/dist/video.js"></script>
+  <script src="dist/videojs-frames.js"></script>
+  <script>
+    (function(window, videojs) {
+      
+        var omPlayer = window.omPlayer = videojs('videojs-frames-player');
+      
+        var frames = window.frames = omPlayer.frames({
+            framerate: 24
+        });
+
+        var smpte = document.getElementById("smpte");
+        smpte.addEventListener("click",function(e){
+          
+            omPlayer.frames().trigger('switch', {
+                format: 'SMPTE'
+            });
+
+        },false);
+
+        var frames = document.getElementById("frames");
+        frames.addEventListener("click",function(e){
+          
+            omPlayer.frames().trigger('switch', {
+                format: 'frames'
+            });
+
+        },false);
+
+         var seconds = document.getElementById("seconds");
+        seconds.addEventListener("click",function(e){
+          
+            omPlayer.frames().trigger('switch', {
+                format: 'seconds'
+            });
+
+        },false);
+
+         var miliseconds = document.getElementById("miliseconds");
+        miliseconds.addEventListener("click",function(e){
+          
+            omPlayer.frames().trigger('switch', {
+                format: 'miliseconds'
+            });
+
+        },false);
+
+    }(window, window.videojs));
+  </script>
+</body>
+</html>
