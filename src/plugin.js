@@ -114,7 +114,6 @@ class Frames extends Plugin {
 
     createMenu(){
 
-
         var that = this; 
 
         var RatesButton = videojs.extend(MenuButton, {
@@ -304,21 +303,8 @@ class Frames extends Plugin {
 
             this.frames().seekBackward(1, function(response){
 
-                console.log(response);
-
-                //that.updateDisplay();
-
                 that.frames().trigger('updateDisplay');
                         
-                /*$("#s3bubble-tf-smpte").html(video.toSMPTE());
-
-                $('.vjs-remaining-time').html(video.toSMPTE());
-
-                $("#s3bubble-tf-frames").html(video.toFrames());
-
-                var frame = video.toFrames();
-                $('#s3bubble-tf-marker').css('left', ((frame/video.totalFrames()) * 100) + '%');*/
-
             });
 
         }
@@ -329,15 +315,6 @@ class Frames extends Plugin {
             this.frames().seekForward(1, function(response){
 
                 that.frames().trigger('updateDisplay');
-                        
-                /*$("#s3bubble-tf-smpte").html(video.toSMPTE());
-
-                $('.vjs-remaining-time').html(video.toSMPTE());
-
-                $("#s3bubble-tf-frames").html(video.toFrames());
-
-                var frame = video.toFrames();
-                $('#s3bubble-tf-marker').css('left', ((frame/video.totalFrames()) * 100) + '%');*/
 
             });
 
