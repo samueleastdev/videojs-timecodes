@@ -164,10 +164,15 @@ class Frames extends Plugin {
                     child.id = options[i].id;
                     child.innerHTML = options[i].title + ' <span class="vjs-control-text"></span>';
                     child.addEventListener('click', function() {
+                        
                         console.log(this.id);
+                        
                         that.trigger('switch', {
                             format: this.id
                         });
+
+                        that.trigger('updateDisplay');
+
                     });
                     menuUL.appendChild(child);
 
@@ -209,61 +214,52 @@ class Frames extends Plugin {
 
             }
 
-            switch (that.options.format) {
-                case 'SMPTE':
-                    
-                    that.player.getChild('controlBar').getChild('timeDisplay').el().innerText = that.toSMPTE();
-                    return that.toSMPTE();
+            that.trigger('updateDisplay');
 
-                break;
-              case 'time':
-                    
-                    that.player.getChild('controlBar').getChild('timeDisplay').el().innerText = that.toTime();
-                    return that.toTime();
-
-                break;
-              case 'frames':
-
-                    that.player.getChild('controlBar').getChild('timeDisplay').el().innerText = that.toFrames();
-                    return that.toFrames();
-               
-                break;
-              case 'seconds':
-                    
-                    that.player.getChild('controlBar').getChild('timeDisplay').el().innerText = that.toSeconds();
-                    return that.toSeconds();
-
-                break;
-              case 'milliseconds':
-                    
-                    that.player.getChild('controlBar').getChild('timeDisplay').el().innerText = that.toMilliseconds();
-                    return that.toMilliseconds();
-
-                break;
-              default: 
-                
-                return that.toTime();
-
-            }
-
-            /*var frame = ((that.options.format === 'SMPTE') ? that.toSMPTE() : ((that.options.format === 'time') ? that.toTime() : that.toTime()));
-
-            console.log('frame', frame);
-
-            that.player.el().getElementsByClassName('vjs-remaining-time-display')[0].innerText = frame;
-
-            //RemainingTimeDisplay
-
-            //if (_video.obj.callback) { _video.obj.callback(frame, format); }
-
-            return frame;*/
 
         }, (tick ? tick : 1000 / this.options.frameRate));
     }
 
     updateDisplay(){
 
-        this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
+        switch (this.options.format) {
+            case 'SMPTE':
+                
+                this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSMPTE();
+                return this.toSMPTE();
+
+            break;
+          case 'time':
+                
+                this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toTime();
+                return this.toTime();
+
+            break;
+          case 'frames':
+
+                this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
+                return this.toFrames();
+           
+            break;
+          case 'seconds':
+                
+                this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSeconds();
+                return this.toSeconds();
+
+            break;
+          case 'milliseconds':
+                
+                this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toMilliseconds();
+                return this.toMilliseconds();
+
+            break;
+          default: 
+            
+            return this.toTime();
+
+        }
+
+        //this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
 
     }
 
@@ -417,7 +413,7 @@ class Frames extends Plugin {
      * @return {String} Returns a SMPTE Time code in HH:MM:SS:FF format
      */
     toSMPTE(frame) {
-        console.log('toSMPTE');
+
         if (!frame) {
             return this.toTime(this.player.currentTime());
         }
@@ -434,6 +430,7 @@ class Frames extends Plugin {
         var _seconds = (Number((frameNumber / fps).toString().split('.')[0]) % 60);
         var SMPTE = (wrap(_hours) + ':' + wrap(_minutes) + ':' + wrap(_seconds) + ':' + wrap(frameNumber % fps));
         return SMPTE;
+
     }
 
     /**
@@ -443,12 +440,13 @@ class Frames extends Plugin {
      * @return {Number} Returns the Second count of a SMPTE Time code
      */
     toSeconds(SMPTE) {
-        console.log('toSeconds');
+
         if (!SMPTE) {
             return Math.floor(this.player.currentTime());
         }
         var time = SMPTE.split(':');
         return (((Number(time[0]) * 60) * 60) + (Number(time[1]) * 60) + Number(time[2]));
+
     }
 
     /**
@@ -459,10 +457,11 @@ class Frames extends Plugin {
      * @return {Number} Returns the Millisecond count of a SMPTE Time code
      */
     toMilliseconds(SMPTE) {
-        console.log('toMilliseconds');
+   
         var frames = (!SMPTE) ? Number(this.toSMPTE().split(':')[3]) : Number(SMPTE.split(':')[3]);
         var milliseconds = (1000 / this.options.frameRate) * (isNaN(frames) ? 0 : frames);
         return Math.floor(((this.toSeconds(SMPTE) * 1000) + milliseconds));
+
     }
 
     /**
@@ -472,7 +471,7 @@ class Frames extends Plugin {
      * @return {Number} Returns the long running video frame number
      */
     toFrames(SMPTE) {
-        console.log('toFrames');
+
         var time = (!SMPTE) ? this.toSMPTE().split(':') : SMPTE.split(':');
         var frameRate = this.options.frameRate;
         var hh = (((Number(time[0]) * 60) * 60) * frameRate);
@@ -480,6 +479,7 @@ class Frames extends Plugin {
         var ss = (Number(time[2]) * frameRate);
         var ff = Number(time[3]);
         return Math.floor((hh + mm + ss + ff));
+
     }
 
     /**
