@@ -67,11 +67,6 @@ class Frames extends Plugin {
 
         this.player.on('keydown', this.keyDown);
 
-        
-        //this.player.addChild('TitleBar', {text: 'The Title of The Video!'});
-
-        //this.player.trigger('handleClick');
-
 
     }
 
