@@ -12,6 +12,14 @@ Framerate plugin
 npm install --save videojs-frames
 ```
 
+```sh
+npm install
+```
+
+```sh
+npm start
+```
+
 ## Usage
 
 To include videojs-frames on your website or web application, use any of the following methods.
