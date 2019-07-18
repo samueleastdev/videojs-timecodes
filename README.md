@@ -20,6 +20,11 @@ npm install
 npm start
 ```
 
+## Live Example
+
+[JsBin Example](https://output.jsbin.com/semolid)
+
+
 ## Usage
 
 To include videojs-frames on your website or web application, use any of the following methods.
