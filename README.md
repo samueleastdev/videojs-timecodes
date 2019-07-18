@@ -15,7 +15,7 @@ npm install --save videojs-frames
 ## Running the project locally on your computer with local server
 
 ```sh
-get clone https://github.com/samueleastdev/videojs-timecodes.git
+git clone https://github.com/samueleastdev/videojs-timecodes.git
 ```
 
 ```sh
