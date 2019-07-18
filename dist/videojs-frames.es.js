@@ -2811,17 +2811,15 @@ function (_Plugin) {
   };
 
   _proto.updateDisplay = function updateDisplay() {
-    console.log('updateDisplay'); // CREATE A LOOP::
+    // CREATE A LOOP::
 
-    var slider = document.getElementById('range');
+    /*var slider = document.getElementById('range');
     var restore = slider.noUiSlider.get();
-
-    if (this.toFrames() >= restore[1]) {
-      this.seekTo({
-        frame: restore[0]
-      });
-    }
-
+    if(this.toFrames() >= restore[1]){
+         this.seekTo({
+            frame: restore[0]
+        });
+     }*/
     switch (this.options.format) {
       case 'SMPTE':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSMPTE();

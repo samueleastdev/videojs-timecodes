@@ -402,10 +402,8 @@ class Frames extends Plugin {
 
     updateDisplay(){
 
-        console.log('updateDisplay');
-
         // CREATE A LOOP::
-        var slider = document.getElementById('range');
+        /*var slider = document.getElementById('range');
         var restore = slider.noUiSlider.get();
         if(this.toFrames() >= restore[1]){
 
@@ -413,7 +411,7 @@ class Frames extends Plugin {
                 frame: restore[0]
             });
 
-        }
+        }*/
 
         switch (this.options.format) {
             case 'SMPTE':
