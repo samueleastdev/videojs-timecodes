@@ -40,6 +40,52 @@
             framerate: 24
         });
 
+        // Moving this outside of plugin for know!
+        omPlayer.on('keydown', function(event){
+
+            console.log('keyDown', event);
+
+            var that = this;
+
+            // Play Pause
+            if(event.which === 32){
+
+                if (this.paused()) {
+                            
+                    this.play();
+
+                }else{
+
+                    this.pause();
+                  
+                }
+
+            }
+
+            // Arrow Left
+            if(event.which === 37){
+
+                this.frames().seekBackward(1, function(response){
+
+                    //that.frames().trigger('updateDisplay');
+                            
+                });
+
+            }
+
+            // Arrow Right
+            if(event.which === 39){
+
+                this.frames().seekForward(1, function(response){
+
+                    //that.frames().trigger('updateDisplay');
+
+                });
+
+            }
+
+        });
+
         var smpte = document.getElementById("smpte");
         smpte.addEventListener("click",function(e){
           

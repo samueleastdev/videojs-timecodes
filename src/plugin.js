@@ -75,8 +75,6 @@ class Frames extends Plugin {
 
         this.on('seekTo', this.seekTo);
 
-        this.player.on('keydown', this.keyDown);
-
         this.on('updateClipping', this.updateClipping);
 
 
@@ -384,12 +382,16 @@ class Frames extends Plugin {
 
         var that = this;
 
+        
+                
+
+
         this.interval = setInterval(function() {
 
             if (that.player.paused() || that.player.ended()) {
 
                 return;
-
+ 
             }
 
             that.trigger('updateDisplay');
@@ -401,6 +403,17 @@ class Frames extends Plugin {
     updateDisplay(){
 
         console.log('updateDisplay');
+
+        // CREATE A LOOP::
+        var slider = document.getElementById('range');
+        var restore = slider.noUiSlider.get();
+        if(this.toFrames() >= restore[1]){
+
+            this.seekTo({
+                frame: restore[0]
+            });
+
+        }
 
         switch (this.options.format) {
             case 'SMPTE':
@@ -462,52 +475,6 @@ class Frames extends Plugin {
             return 100;
         }
         
-    }
-
-    keyDown(event){
-
-        console.log('keyDown', event);
-
-        var that = this;
-
-        // Play Pause
-        if(event.which === 32){
-
-            if (this.paused()) {
-                        
-                this.play();
-
-            }else{
-
-                this.pause();
-              
-            }
-
-        }
-
-        // Arrow Left
-        if(event.which === 37){
-
-            this.frames().seekBackward(1, function(response){
-
-                that.frames().trigger('updateDisplay');
-                        
-            });
-
-        }
-
-        // Arrow Right
-        if(event.which === 39){
-
-            this.frames().seekForward(1, function(response){
-
-                that.frames().trigger('updateDisplay');
-
-            });
-
-        }
-
-        return;
     }
 
     updateState() {
@@ -672,6 +639,7 @@ class Frames extends Plugin {
     seekForward(frames, callback) {
         if (!frames) { frames = 1; }
         this.seek('forward', Number(frames));
+        this.trigger('updateDisplay');
         return (callback ? callback() : true);
     }
 
@@ -684,6 +652,7 @@ class Frames extends Plugin {
     seekBackward(frames, callback) {
         if (!frames) { frames = 1; }
         this.seek('backward', Number(frames));
+        this.trigger('updateDisplay');
         return (callback ? callback() : true);
     }
 
