@@ -7,7 +7,7 @@
   <link href="dist/videojs-frames.css" rel="stylesheet">
 </head>
 <body>
-  <video id="videojs-frames-player" class="video-js vjs-default-skin" controls muted>
+  <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted>
     <source src="http://vjs.zencdn.net/v/oceans.mp4" type='video/mp4'>
     <source src="http://vjs.zencdn.net/v/oceans.webm" type='video/webm'>
   </video>
@@ -24,7 +24,17 @@
   <script>
     (function(window, videojs) {
       
-        var omPlayer = window.omPlayer = videojs('videojs-frames-player');
+        var omPlayer = window.omPlayer = videojs('videojs-frames-player',{
+                html5: {
+                    hls: {
+                        overrideNative: true // NEW OVERIDE NATIVE::
+                    } 
+                },
+                playbackRates: [0.5, 1, 1.5, 2],      
+                controlBar: {
+                    volumePanel: {inline: false}
+                }
+            });
       
         var frames = window.frames = omPlayer.frames({
             framerate: 24

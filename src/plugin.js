@@ -3,8 +3,10 @@ import {
     version as VERSION
 } from '../package.json';
 
-//import './components/settings-menu-button.js';
+import './components/settings-menu-button.js';
+import noUiSlider from '../node_modules/nouislider/distribute/nouislider.js';
 
+ 
 const Plugin = videojs.getPlugin('plugin');
 const MenuButton = videojs.getComponent('MenuButton');
 const Menu = videojs.getComponent('Menu');
@@ -13,7 +15,8 @@ const Component = videojs.getComponent('Component');
 // Default options for the plugin.
 const defaults = {
     format: 'time',
-    frameRate: 24
+    frameRate: 24,
+    clippingEnabled: false
 };
 
 /**
@@ -50,12 +53,17 @@ class Frames extends Plugin {
 
         this.player.ready(() => {
             this.player.addClass('vjs-frames');
+
+             this.listen('time');
+
             this.createMenu();
             this.createTimeDisplay();
 
+            this.createClippingMenu(); 
+
         });
 
-        this.on(player, ['playing', 'pause'], this.updateState);
+        //this.on(player, ['playing', 'pause'], this.updateState);
 
         this.on('statechanged', this.logState);
 
@@ -65,7 +73,11 @@ class Frames extends Plugin {
 
         this.on(player, ['seeking'], this.updateDisplay);
 
+        this.on('seekTo', this.seekTo);
+
         this.player.on('keydown', this.keyDown);
+
+        this.on('updateClipping', this.updateClipping);
 
 
     }
@@ -198,6 +210,176 @@ class Frames extends Plugin {
 
     }
 
+    createClippingMenu(){
+ 
+        var that = this; 
+
+        var isHidden = true;
+
+
+        this.player.getChild('controlBar').getChild('progressControl').addChild('TitleBar', {text: ''});
+
+        var slider = document.getElementById('range');
+
+        noUiSlider.create(slider, {
+            start: [0, that.totalFrames()],
+            connect: true,
+            step: 1,
+            range: {
+                'min': 0,
+                'max': parseInt(that.totalFrames())
+            }
+        });
+
+        slider.noUiSlider.on('update', function(ind, ui){
+
+            that.player.pause();
+                
+            if (ui === 0) {
+                
+                 that.seekTo({
+                    frame: Math.round(ind[0])
+                });
+            
+            } else {
+
+                 that.seekTo({
+                    frame: Math.round(ind[1])
+                });
+            
+            }
+
+        });
+
+
+        this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').hide();
+
+        var ClipButton = videojs.extend(MenuButton, {
+            constructor: function() {
+
+                MenuButton.apply(this, arguments);
+
+                this.addClass('vjs-button');
+                this.addClass('vjs-setting-menu-om'); // needed for cleanup
+                this.controlText("Clip");
+
+                this.children_[0].addClass('vjs-icon-chapters');
+
+                // Get the menu ul 
+                var menuUL = this.el().children[1].children[0];
+
+                var header = document.createElement("li");
+                    header.className = 'vjs-om-menu-header';
+                    header.innerHTML = 'Settings';
+
+                menuUL.appendChild(header);
+
+                var options = [{
+                    title: 'Shortcuts',
+                    id: 'shortcuts'
+                },{
+                    title: 'Partial Restore',
+                    id: 'restore'
+                },{
+                    title: 'Enable',
+                    id: 'enable'
+                }];
+
+                var i;
+                var classIndex = 100;
+                for (i = 0; i < options.length; i++) {
+
+
+                    var child = document.createElement("li");
+                    child.className = 'vjs-menu-item';
+                    child.id = options[i].id;
+                    child.innerHTML = options[i].title + ' <span class="vjs-control-text"></span>';
+                    child.addEventListener('click', function() {
+                        
+                        console.log(this.id);
+                        
+                        that.trigger('updateClipping', {
+                            item: this.id
+                        });
+
+                        //that.trigger('updateDisplay');
+
+                    });
+                    menuUL.appendChild(child);
+
+                }
+
+                this.el().children[1].appendChild(menuUL);
+
+            },
+
+            handleClick: function() {
+ 
+                console.log('Setup clipping ui'); 
+
+                
+
+            }
+        });
+
+        videojs.registerComponent('clipButton', ClipButton);
+        this.player.getChild('controlBar').addChild('clipButton', {});
+        this.player.getChild('controlBar').el().insertBefore(
+            this.player.getChild('controlBar').getChild('clipButton').el(),
+            this.player.getChild('controlBar').getChild('fullscreenToggle').el()
+        );
+
+    }
+
+    updateClipping(event, json) {
+
+        console.log(json);
+
+        switch (json.item) {
+            case 'enable':
+                
+                if(this.options.clippingEnabled){
+
+                    this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
+
+                    this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').hide();
+                    
+                    
+
+                    this.options.clippingEnabled = false;
+                
+                }else{
+                    
+                    this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
+
+                    this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').show();
+
+                    this.options.clippingEnabled = true;
+                }
+
+            break;
+          case 'restore':
+                
+                var slider = document.getElementById('range');
+                var restore = slider.noUiSlider.get();
+
+                console.log('restore',restore);
+
+                alert(JSON.stringify(restore));
+                return;
+
+            break;
+         
+          default: 
+            
+            return;
+
+        }
+
+        
+    }
+
+
     listen(format, tick) {
 
         var that = this;
@@ -217,6 +399,8 @@ class Frames extends Plugin {
     }
 
     updateDisplay(){
+
+        console.log('updateDisplay');
 
         switch (this.options.format) {
             case 'SMPTE':
@@ -271,7 +455,13 @@ class Frames extends Plugin {
     }
 
     totalFrames() {
-        return Math.floor(this.player.duration().toFixed(5) * this.options.frameRate);
+
+        if(this.player.duration()){
+            return Math.floor(this.player.duration().toFixed(5) * this.options.frameRate);
+        }else{
+            return 100;
+        }
+        
     }
 
     keyDown(event){
@@ -505,34 +695,55 @@ class Frames extends Plugin {
      * example: { SMPTE: '00:01:12:22' }, { time: '00:01:12' },  { frame: 1750 }, { seconds: 72 }, { milliseconds: 72916 }
      */
     seekTo(config) {
+
+        console.log('seekTo',config);
         var obj = config || {}, seekTime, SMPTE;
 
         /** Only allow one option to be passed */
         var option = Object.keys(obj)[0];
 
         if (option == 'SMPTE' || option == 'time') {
+        
             SMPTE = obj[option];
+        
             seekTime = ((this.toMilliseconds(SMPTE) / 1000) + 0.001);
+        
             this.player.currentTime(seekTime);
+
             return;
+        
         }
 
         switch(option) {
+
             case 'frame':
+            
                 SMPTE = this.toSMPTE(obj[option]);
+            
                 seekTime = ((this.toMilliseconds(SMPTE) / 1000) + 0.001);
+            
                 break;
+            
             case 'seconds':
+            
                 seekTime = Number(obj[option]);
+            
                 break;
+            
             case 'milliseconds':
+            
                 seekTime = ((Number(obj[option]) / 1000) + 0.001);
+            
                 break;
+        
         }
         
         if (!isNaN(seekTime)) {
+
             this.player.currentTime(seekTime);
+        
         }
+
     }
 
 }
