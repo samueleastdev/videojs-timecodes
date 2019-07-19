@@ -403,15 +403,19 @@ class Frames extends Plugin {
     updateDisplay(){
 
         // CREATE A LOOP::
-        /*var slider = document.getElementById('range');
-        var restore = slider.noUiSlider.get();
-        if(this.toFrames() >= restore[1]){
+        if (!this.player.paused()){
 
-            this.seekTo({
-                frame: restore[0]
-            });
+            var slider = document.getElementById('range');
+            var restore = slider.noUiSlider.get();
+            if(this.toFrames() >= restore[1]){
 
-        }*/
+                this.seekTo({
+                    frame: restore[0]
+                });
+
+            }
+
+        }
 
         switch (this.options.format) {
             case 'SMPTE':

@@ -23,6 +23,11 @@
   <script src="dist/videojs-frames.js"></script>
   <script>
     (function(window, videojs) {
+
+        // HACK TO STOP SPACE BAR MOVING DOM
+        window.onkeydown = function(e) { 
+            return !(e.keyCode == 32 && e.target == document.body);
+        }; 
       
         var omPlayer = window.omPlayer = videojs('videojs-frames-player',{
                 html5: {
@@ -30,6 +35,7 @@
                         overrideNative: true // NEW OVERIDE NATIVE::
                     } 
                 },
+                inactivityTimeout: 0,
                 playbackRates: [0.5, 1, 1.5, 2],      
                 controlBar: {
                     volumePanel: {inline: false}
