@@ -3,9 +3,8 @@ import {
     version as VERSION
 } from '../package.json';
 
-import './components/settings-menu-button.js';
+import './components/clipping-ui.js';
 import noUiSlider from '../node_modules/nouislider/distribute/nouislider.js';
-
  
 const Plugin = videojs.getPlugin('plugin');
 const MenuButton = videojs.getComponent('MenuButton');
@@ -16,8 +15,20 @@ const Component = videojs.getComponent('Component');
 const defaults = {
     format: 'time',
     frameRate: 24,
-    clippingEnabled: false
+    clippingEnabled: true,
+    clippingDisplayed: false
 };
+
+/*
+    film: 24,
+    NTSC : 29.97,
+    NTSC_Film: 23.98,
+    NTSC_HD : 59.94,
+    PAL: 25,
+    PAL_HD: 50,
+    web: 30,
+    high: 60
+*/
 
 /**
  * An advanced Video.js plugin. For more information on the API
@@ -41,33 +52,36 @@ class Frames extends Plugin {
      */
     constructor(player, options) {
 
-
-        // the parent class will add player under this.player
         super(player);
 
         this.options = videojs.mergeOptions(defaults, options);
 
-        console.log('options', this.options.frameRate);
-
-        this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide()
+        // Hide the remaining time replaced by timecode
+        this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide();
 
         this.player.ready(() => {
+
             this.player.addClass('vjs-frames');
 
-             this.listen('time');
+            console.info('Player ready...');
 
-            this.createMenu();
-            this.createTimeDisplay();
+            // Check if clipping should be enabled
+            if(this.options.clippingEnabled){
+                
+                console.info('Clipping menu enabled');
+                this.createClippingMenu(); 
 
-            this.createClippingMenu(); 
+            }
+
+            this.createTimecodeMenu();
+
+            this.createTimeDisplay(); 
+
+            this.listen('time'); // start listening to the time 
 
         });
 
-        //this.on(player, ['playing', 'pause'], this.updateState);
-
-        this.on('statechanged', this.logState);
-
-        this.on('switch', this.switchFormat);
+        this.on('switchTimecode', this.switchTimecode);
 
         this.on('updateDisplay', this.updateDisplay);
 
@@ -91,17 +105,11 @@ class Frames extends Plugin {
 
                 this.addClass('vjs-timecode-menu');
 
-                /*this.addClass('vjs-menu-button');
-                this.addClass('vjs-button');
-                this.addClass('vjs-setting-menu-om'); // needed for cleanup
-                this.controlText("Rates");*/
-
             },
 
             handleClick: function() {
- 
-                console.log(this.player); 
-                that.trigger('switch', {
+
+                that.trigger('switchTimecode', {
                     format: 'frames'
                 });
 
@@ -109,17 +117,18 @@ class Frames extends Plugin {
         });
 
         videojs.registerComponent('timeDisplay', TimeDisplay);
+
         this.player.getChild('controlBar').addChild('timeDisplay', {});
 
         this.player.getChild('controlBar').el().insertBefore(
             this.player.getChild('controlBar').getChild('timeDisplay').el(),
-            this.player.getChild('controlBar').getChild('timecodeButton').el()
+            this.player.getChild('controlBar').getChild('progressControl').el()
         );
 
 
     }
 
-    createMenu(){
+    createTimecodeMenu(){
  
         var that = this; 
 
@@ -129,10 +138,11 @@ class Frames extends Plugin {
                 MenuButton.apply(this, arguments);
 
                 this.addClass('vjs-button');
-                this.addClass('vjs-setting-menu-om'); // needed for cleanup
-                this.controlText("Rates");
+                this.controlText("Timecode");
 
-                this.children_[0].addClass('vjs-icon-cog');
+                this.children_[0].addClass('vjs-fa-icon');
+                this.children_[0].addClass('fa');
+                this.children_[0].addClass('fa-clock-o');
 
                 // Get the menu ul 
                 var menuUL = this.el().children[1].children[0];
@@ -166,20 +176,23 @@ class Frames extends Plugin {
 
 
                     var child = document.createElement("li");
+
                     child.className = 'vjs-menu-item';
+                    
                     child.id = options[i].id;
+                    
                     child.innerHTML = options[i].title + ' <span class="vjs-control-text"></span>';
+                    
                     child.addEventListener('click', function() {
                         
-                        console.log(this.id);
-                        
-                        that.trigger('switch', {
+                        that.trigger('switchTimecode', {
                             format: this.id
                         });
 
                         that.trigger('updateDisplay');
 
                     });
+
                     menuUL.appendChild(child);
 
                 }
@@ -187,24 +200,17 @@ class Frames extends Plugin {
                 this.el().children[1].appendChild(menuUL);
 
             },
-
-            handleClick: function() {
- 
-                console.log(this.player); 
-                /*that.trigger('switch', {
-                    format: 'frames'
-                });*/
-
-            }
+            handleClick: function() {}
         });
 
         videojs.registerComponent('timecodeButton', TimecodeButton);
+
         this.player.getChild('controlBar').addChild('timecodeButton', {});
+
         this.player.getChild('controlBar').el().insertBefore(
             this.player.getChild('controlBar').getChild('timecodeButton').el(),
-            this.player.getChild('controlBar').getChild('fullscreenToggle').el()
+            this.player.getChild('controlBar').getChild('progressControl').el()
         );
-
 
     }
 
@@ -212,10 +218,7 @@ class Frames extends Plugin {
  
         var that = this; 
 
-        var isHidden = true;
-
-
-        this.player.getChild('controlBar').getChild('progressControl').addChild('TitleBar', {text: ''});
+        this.player.getChild('controlBar').getChild('progressControl').addChild('ClippingBar', {text: ''});
 
         var slider = document.getElementById('range');
 
@@ -249,8 +252,7 @@ class Frames extends Plugin {
 
         });
 
-
-        this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').hide();
+        this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
 
         var ClipButton = videojs.extend(MenuButton, {
             constructor: function() {
@@ -258,10 +260,11 @@ class Frames extends Plugin {
                 MenuButton.apply(this, arguments);
 
                 this.addClass('vjs-button');
-                this.addClass('vjs-setting-menu-om'); // needed for cleanup
-                this.controlText("Clip");
+                this.controlText("Clipping");
 
-                this.children_[0].addClass('vjs-icon-chapters');
+                this.children_[0].addClass('vjs-fa-icon');
+                this.children_[0].addClass('fa');
+                this.children_[0].addClass('fa-scissors');
 
                 // Get the menu ul 
                 var menuUL = this.el().children[1].children[0];
@@ -289,20 +292,21 @@ class Frames extends Plugin {
 
 
                     var child = document.createElement("li");
+                    
                     child.className = 'vjs-menu-item';
+                    
                     child.id = options[i].id;
+                    
                     child.innerHTML = options[i].title + ' <span class="vjs-control-text"></span>';
+
                     child.addEventListener('click', function() {
-                        
-                        console.log(this.id);
                         
                         that.trigger('updateClipping', {
                             item: this.id
                         });
 
-                        //that.trigger('updateDisplay');
-
                     });
+                    
                     menuUL.appendChild(child);
 
                 }
@@ -310,60 +314,52 @@ class Frames extends Plugin {
                 this.el().children[1].appendChild(menuUL);
 
             },
-
-            handleClick: function() {
- 
-                console.log('Setup clipping ui'); 
-
-                
-
-            }
+            handleClick: function() {}
         });
 
         videojs.registerComponent('clipButton', ClipButton);
+
         this.player.getChild('controlBar').addChild('clipButton', {});
+
         this.player.getChild('controlBar').el().insertBefore(
             this.player.getChild('controlBar').getChild('clipButton').el(),
-            this.player.getChild('controlBar').getChild('fullscreenToggle').el()
+            this.player.getChild('controlBar').getChild('progressControl').el()
         );
 
     }
 
     updateClipping(event, json) {
 
-        console.log(json);
-
         switch (json.item) {
             case 'enable':
                 
-                if(this.options.clippingEnabled){
+                if(this.options.clippingDisplayed){
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
 
-                    this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').hide();
+                    this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
                     
-                    
-
-                    this.options.clippingEnabled = false;
+                    this.options.clippingDisplayed = false;
                 
                 }else{
                     
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
 
-                    this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').show();
+                    this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
 
-                    this.options.clippingEnabled = true;
+                    this.options.clippingDisplayed = true;
+
                 }
 
             break;
           case 'restore':
                 
                 var slider = document.getElementById('range');
+
                 var restore = slider.noUiSlider.get();
 
-                console.log('restore',restore);
-
                 alert(JSON.stringify(restore));
+
                 return;
 
             break;
@@ -377,14 +373,9 @@ class Frames extends Plugin {
         
     }
 
-
     listen(format, tick) {
 
         var that = this;
-
-        
-                
-
 
         this.interval = setInterval(function() {
 
@@ -396,22 +387,28 @@ class Frames extends Plugin {
 
             that.trigger('updateDisplay');
 
-
         }, (tick ? tick : 1000 / this.options.frameRate));
+
     }
 
     updateDisplay(){
 
-        // CREATE A LOOP::
-        if (!this.player.paused()){
+        // Create a loop if clipping enabled
+        if(this.options.clippingEnabled && this.options.clippingDisplayed){
+ 
+            if (!this.player.paused()){
 
-            var slider = document.getElementById('range');
-            var restore = slider.noUiSlider.get();
-            if(this.toFrames() >= restore[1]){
+                var slider = document.getElementById('range');
 
-                this.seekTo({
-                    frame: restore[0]
-                });
+                var restore = slider.noUiSlider.get();
+                
+                if(this.toFrames() >= restore[1]){
+
+                    this.seekTo({
+                        frame: restore[0]
+                    });
+
+                }
 
             }
 
@@ -454,8 +451,6 @@ class Frames extends Plugin {
 
         }
 
-        //this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
-
     }
 
     stopListen() {
@@ -467,41 +462,28 @@ class Frames extends Plugin {
     getFrames() {
  
         return Math.floor(this.player.currentTime().toFixed(5) * this.options.frameRate);
+    
     }
 
     totalFrames() {
 
         if(this.player.duration()){
+        
             return Math.floor(this.player.duration().toFixed(5) * this.options.frameRate);
+        
         }else{
+            
             return 100;
+
         }
         
     }
 
-    updateState() {
-
-        if (!this.player.paused()) {
-            this.listen('time');
-        } else {
-            this.stopListen();
-        }
-        this.setState({
-            playing: !this.player.paused()
-        });
-
-    }
-
-    switchFormat(event, json) {
+    switchTimecode(event, json) {
 
         this.options.format = json.format;
-    }
 
-    logState(changed) {
-        videojs.log(`the player is now ${this.state.playing ? 'playing' : 'paused'}`);
-    }
-
-    
+    }    
 
     /**
      * Returns the current time code in the video in HH:MM:SS format
@@ -514,16 +496,22 @@ class Frames extends Plugin {
   
         var time = (typeof frames !== 'number' ? this.player.currentTime() : frames),
             frameRate = this.options.frameRate;
+        
         var dt = (new Date()),
             format = 'hh:mm:ss' + (typeof frames === 'number' ? ':ff' : '');
+        
         dt.setHours(0);
+        
         dt.setMinutes(0);
+        
         dt.setSeconds(0);
+        
         dt.setMilliseconds(time * 1000);
 
         function wrap(n) {
             return ((n < 10) ? '0' + n : n);
         }
+
         return format.replace(/hh|mm|ss|ff/g, function(format) {
             switch (format) {
                 case "hh":
@@ -536,6 +524,7 @@ class Frames extends Plugin {
                     return wrap(Math.floor(((time % 1) * frameRate)));
             }
         });
+
     }
 
     /**
@@ -548,20 +537,30 @@ class Frames extends Plugin {
     toSMPTE(frame) {
 
         if (!frame) {
+            
             return this.toTime(this.player.currentTime());
+
         }
+        
         var frameNumber = Number(frame);
+        
         var fps = this.options.frameRate;
 
         function wrap(n) {
             return ((n < 10) ? '0' + n : n);
         }
+        
         var _hour = ((fps * 60) * 60),
             _minute = (fps * 60);
+        
         var _hours = (frameNumber / _hour).toFixed(0);
+        
         var _minutes = (Number((frameNumber / _minute).toString().split('.')[0]) % 60);
+        
         var _seconds = (Number((frameNumber / fps).toString().split('.')[0]) % 60);
+        
         var SMPTE = (wrap(_hours) + ':' + wrap(_minutes) + ':' + wrap(_seconds) + ':' + wrap(frameNumber % fps));
+        
         return SMPTE;
 
     }
@@ -577,7 +576,9 @@ class Frames extends Plugin {
         if (!SMPTE) {
             return Math.floor(this.player.currentTime());
         }
+        
         var time = SMPTE.split(':');
+        
         return (((Number(time[0]) * 60) * 60) + (Number(time[1]) * 60) + Number(time[2]));
 
     }
@@ -592,7 +593,9 @@ class Frames extends Plugin {
     toMilliseconds(SMPTE) {
    
         var frames = (!SMPTE) ? Number(this.toSMPTE().split(':')[3]) : Number(SMPTE.split(':')[3]);
+        
         var milliseconds = (1000 / this.options.frameRate) * (isNaN(frames) ? 0 : frames);
+        
         return Math.floor(((this.toSeconds(SMPTE) * 1000) + milliseconds));
 
     }
@@ -606,11 +609,17 @@ class Frames extends Plugin {
     toFrames(SMPTE) {
 
         var time = (!SMPTE) ? this.toSMPTE().split(':') : SMPTE.split(':');
+        
         var frameRate = this.options.frameRate;
+        
         var hh = (((Number(time[0]) * 60) * 60) * frameRate);
+        
         var mm = ((Number(time[1]) * 60) * frameRate);
+        
         var ss = (Number(time[2]) * frameRate);
+        
         var ff = Number(time[3]);
+        
         return Math.floor((hh + mm + ss + ff));
 
     }
@@ -629,7 +638,9 @@ class Frames extends Plugin {
         /** To seek forward in the video, we must add 0.00001 to the video runtime for proper interactivity */
 
         var currentTime = ((((direction === 'backward' ? (frame - frames) : (frame + frames))) / this.options.frameRate) + 0.00001);
+        
         this.player.currentTime(currentTime);
+
     }
 
     /**
@@ -639,10 +650,15 @@ class Frames extends Plugin {
      * @param  {Function} callback - Callback function to execute once seeking is complete.
      */
     seekForward(frames, callback) {
+        
         if (!frames) { frames = 1; }
+        
         this.seek('forward', Number(frames));
+        
         this.trigger('updateDisplay');
+        
         return (callback ? callback() : true);
+
     }
 
     /**
@@ -652,10 +668,15 @@ class Frames extends Plugin {
      * @param  {Function} callback - Callback function to execute once seeking is complete.
      */
     seekBackward(frames, callback) {
+
         if (!frames) { frames = 1; }
+        
         this.seek('backward', Number(frames));
+        
         this.trigger('updateDisplay');
+        
         return (callback ? callback() : true);
+
     }
 
     /**
@@ -667,7 +688,6 @@ class Frames extends Plugin {
      */
     seekTo(config) {
 
-        console.log('seekTo',config);
         var obj = config || {}, seekTime, SMPTE;
 
         /** Only allow one option to be passed */
@@ -684,6 +704,8 @@ class Frames extends Plugin {
             return;
         
         }
+
+        console.log('seekTo: option',option);
 
         switch(option) {
 
@@ -711,8 +733,10 @@ class Frames extends Plugin {
         
         if (!isNaN(seekTime)) {
 
+            console.log('player.scrubbing()',this.player.scrubbing());
+
             this.player.currentTime(seekTime);
-        
+         
         }
 
     }

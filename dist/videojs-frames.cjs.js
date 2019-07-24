@@ -13,51 +13,21 @@ function _inheritsLoose(subClass, superClass) {
 
 var version = "0.0.0";
 
-// Get the Component base class from Video.js
 var Component = videojs.getComponent('Component');
-var TitleBar = videojs.extend(Component, {
-  // The constructor of a component receives two arguments: the
-  // player it will be associated with and an object of options.
+var ClippingBar = videojs.extend(Component, {
   constructor: function constructor(player, options) {
-    // It is important to invoke the superclass before anything else, 
-    // to get all the features of components out of the box!
-    Component.apply(this, arguments); // If a `text` option was passed in, update the text content of 
-    // the component.
-
-    if (options.text) {
-      this.updateTextContent(options.text);
-    }
-
+    Component.apply(this, arguments);
     this.on('click', this.handleClick);
   },
-  handleClick: function handleClick() {
-    console.log('Enable UI');
-  },
-  // The `createEl` function of a component creates its DOM element.
+  handleClick: function handleClick() {},
   createEl: function createEl() {
-    return videojs.createEl('div', {
-      // Prefixing classes of elements within a player with "vjs-" 
-      // is a convention used in Video.js.
+    return videojs.dom.createEl('div', {
       className: 'g-ranger',
       id: 'range'
     });
-  },
-  // This function could be called at any time to update the text 
-  // contents of the component.
-  updateTextContent: function updateTextContent(text) {
-    // If no text was provided, default to "Title Unknown"
-    if (typeof text !== 'string') {
-      text = 'Title Unknown';
-    } // Use Video.js utility DOM methods to manipulate the content
-    // of the component's element.
-
-
-    videojs.emptyEl(this.el());
-    videojs.appendContent(this.el(), text);
   }
-}); // Register the component with Video.js, so it can be used in players.
-
-videojs.registerComponent('TitleBar', TitleBar);
+});
+videojs.registerComponent('ClippingBar', ClippingBar);
 
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
@@ -2541,8 +2511,20 @@ var Component$1 = videojs$1.getComponent('Component'); // Default options for th
 var defaults = {
   format: 'time',
   frameRate: 24,
-  clippingEnabled: false
+  clippingEnabled: true,
+  clippingDisplayed: false
 };
+/*
+    film: 24,
+    NTSC : 29.97,
+    NTSC_Film: 23.98,
+    NTSC_HD : 59.94,
+    PAL: 25,
+    PAL_HD: 50,
+    web: 30,
+    high: 60
+*/
+
 /**
  * An advanced Video.js plugin. For more information on the API
  *
@@ -2570,29 +2552,31 @@ function (_Plugin) {
   function Frames(player, options) {
     var _this;
 
-    // the parent class will add player under this.player
     _this = _Plugin.call(this, player) || this;
-    _this.options = videojs$1.mergeOptions(defaults, options);
-    console.log('options', _this.options.frameRate);
+    _this.options = videojs$1.mergeOptions(defaults, options); // Hide the remaining time replaced by timecode
 
     _this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide();
 
     _this.player.ready(function () {
       _this.player.addClass('vjs-frames');
 
-      _this.listen('time');
+      console.info('Player ready...'); // Check if clipping should be enabled
 
-      _this.createMenu();
+      if (_this.options.clippingEnabled) {
+        console.info('Clipping menu enabled');
+
+        _this.createClippingMenu();
+      }
+
+      _this.createTimecodeMenu();
 
       _this.createTimeDisplay();
 
-      _this.createClippingMenu();
-    }); //this.on(player, ['playing', 'pause'], this.updateState);
+      _this.listen('time'); // start listening to the time 
 
+    });
 
-    _this.on('statechanged', _this.logState);
-
-    _this.on('switch', _this.switchFormat);
+    _this.on('switchTimecode', _this.switchTimecode);
 
     _this.on('updateDisplay', _this.updateDisplay);
 
@@ -2613,33 +2597,28 @@ function (_Plugin) {
       constructor: function constructor() {
         MenuButton.apply(this, arguments);
         this.addClass('vjs-timecode-menu');
-        /*this.addClass('vjs-menu-button');
-        this.addClass('vjs-button');
-        this.addClass('vjs-setting-menu-om'); // needed for cleanup
-        this.controlText("Rates");*/
       },
       handleClick: function handleClick() {
-        console.log(this.player);
-        that.trigger('switch', {
+        that.trigger('switchTimecode', {
           format: 'frames'
         });
       }
     });
     videojs$1.registerComponent('timeDisplay', TimeDisplay);
     this.player.getChild('controlBar').addChild('timeDisplay', {});
-    this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('timeDisplay').el(), this.player.getChild('controlBar').getChild('timecodeButton').el());
+    this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('timeDisplay').el(), this.player.getChild('controlBar').getChild('progressControl').el());
   };
 
-  _proto.createMenu = function createMenu() {
+  _proto.createTimecodeMenu = function createTimecodeMenu() {
     var that = this;
     var TimecodeButton = videojs$1.extend(MenuButton, {
       constructor: function constructor() {
         MenuButton.apply(this, arguments);
         this.addClass('vjs-button');
-        this.addClass('vjs-setting-menu-om'); // needed for cleanup
-
-        this.controlText("Rates");
-        this.children_[0].addClass('vjs-icon-cog'); // Get the menu ul 
+        this.controlText("Timecode");
+        this.children_[0].addClass('vjs-fa-icon');
+        this.children_[0].addClass('fa');
+        this.children_[0].addClass('fa-clock-o'); // Get the menu ul 
 
         var menuUL = this.el().children[1].children[0];
         var header = document.createElement("li");
@@ -2670,8 +2649,7 @@ function (_Plugin) {
           child.id = options[i].id;
           child.innerHTML = options[i].title + ' <span class="vjs-control-text"></span>';
           child.addEventListener('click', function () {
-            console.log(this.id);
-            that.trigger('switch', {
+            that.trigger('switchTimecode', {
               format: this.id
             });
             that.trigger('updateDisplay');
@@ -2681,21 +2659,16 @@ function (_Plugin) {
 
         this.el().children[1].appendChild(menuUL);
       },
-      handleClick: function handleClick() {
-        console.log(this.player);
-        /*that.trigger('switch', {
-            format: 'frames'
-        });*/
-      }
+      handleClick: function handleClick() {}
     });
     videojs$1.registerComponent('timecodeButton', TimecodeButton);
     this.player.getChild('controlBar').addChild('timecodeButton', {});
-    this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('timecodeButton').el(), this.player.getChild('controlBar').getChild('fullscreenToggle').el());
+    this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('timecodeButton').el(), this.player.getChild('controlBar').getChild('progressControl').el());
   };
 
   _proto.createClippingMenu = function createClippingMenu() {
     var that = this;
-    this.player.getChild('controlBar').getChild('progressControl').addChild('TitleBar', {
+    this.player.getChild('controlBar').getChild('progressControl').addChild('ClippingBar', {
       text: ''
     });
     var slider = document.getElementById('range');
@@ -2721,15 +2694,15 @@ function (_Plugin) {
         });
       }
     });
-    this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').hide();
+    this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
     var ClipButton = videojs$1.extend(MenuButton, {
       constructor: function constructor() {
         MenuButton.apply(this, arguments);
         this.addClass('vjs-button');
-        this.addClass('vjs-setting-menu-om'); // needed for cleanup
-
-        this.controlText("Clip");
-        this.children_[0].addClass('vjs-icon-chapters'); // Get the menu ul 
+        this.controlText("Clipping");
+        this.children_[0].addClass('vjs-fa-icon');
+        this.children_[0].addClass('fa');
+        this.children_[0].addClass('fa-scissors'); // Get the menu ul 
 
         var menuUL = this.el().children[1].children[0];
         var header = document.createElement("li");
@@ -2754,38 +2727,33 @@ function (_Plugin) {
           child.id = options[i].id;
           child.innerHTML = options[i].title + ' <span class="vjs-control-text"></span>';
           child.addEventListener('click', function () {
-            console.log(this.id);
             that.trigger('updateClipping', {
               item: this.id
-            }); //that.trigger('updateDisplay');
+            });
           });
           menuUL.appendChild(child);
         }
 
         this.el().children[1].appendChild(menuUL);
       },
-      handleClick: function handleClick() {
-        console.log('Setup clipping ui');
-      }
+      handleClick: function handleClick() {}
     });
     videojs$1.registerComponent('clipButton', ClipButton);
     this.player.getChild('controlBar').addChild('clipButton', {});
-    this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('clipButton').el(), this.player.getChild('controlBar').getChild('fullscreenToggle').el());
+    this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('clipButton').el(), this.player.getChild('controlBar').getChild('progressControl').el());
   };
 
   _proto.updateClipping = function updateClipping(event, json) {
-    console.log(json);
-
     switch (json.item) {
       case 'enable':
-        if (this.options.clippingEnabled) {
+        if (this.options.clippingDisplayed) {
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
-          this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').hide();
-          this.options.clippingEnabled = false;
+          this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
+          this.options.clippingDisplayed = false;
         } else {
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
-          this.player.getChild('controlBar').getChild('progressControl').getChild('TitleBar').show();
-          this.options.clippingEnabled = true;
+          this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
+          this.options.clippingDisplayed = true;
         }
 
         break;
@@ -2793,7 +2761,6 @@ function (_Plugin) {
       case 'restore':
         var slider = document.getElementById('range');
         var restore = slider.noUiSlider.get();
-        console.log('restore', restore);
         alert(JSON.stringify(restore));
         return;
         break;
@@ -2815,15 +2782,17 @@ function (_Plugin) {
   };
 
   _proto.updateDisplay = function updateDisplay() {
-    // CREATE A LOOP::
-    if (!this.player.paused()) {
-      var slider = document.getElementById('range');
-      var restore = slider.noUiSlider.get();
+    // Create a loop if clipping enabled
+    if (this.options.clippingEnabled && this.options.clippingDisplayed) {
+      if (!this.player.paused()) {
+        var slider = document.getElementById('range');
+        var restore = slider.noUiSlider.get();
 
-      if (this.toFrames() >= restore[1]) {
-        this.seekTo({
-          frame: restore[0]
-        });
+        if (this.toFrames() >= restore[1]) {
+          this.seekTo({
+            frame: restore[0]
+          });
+        }
       }
     }
 
@@ -2855,8 +2824,7 @@ function (_Plugin) {
 
       default:
         return this.toTime();
-    } //this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
-
+    }
   };
 
   _proto.stopListen = function stopListen() {
@@ -2875,24 +2843,8 @@ function (_Plugin) {
     }
   };
 
-  _proto.updateState = function updateState() {
-    if (!this.player.paused()) {
-      this.listen('time');
-    } else {
-      this.stopListen();
-    }
-
-    this.setState({
-      playing: !this.player.paused()
-    });
-  };
-
-  _proto.switchFormat = function switchFormat(event, json) {
+  _proto.switchTimecode = function switchTimecode(event, json) {
     this.options.format = json.format;
-  };
-
-  _proto.logState = function logState(changed) {
-    videojs$1.log("the player is now " + (this.state.playing ? 'playing' : 'paused'));
   }
   /**
    * Returns the current time code in the video in HH:MM:SS format
@@ -3076,7 +3028,6 @@ function (_Plugin) {
   ;
 
   _proto.seekTo = function seekTo(config) {
-    console.log('seekTo', config);
     var obj = config || {},
         seekTime,
         SMPTE;
@@ -3090,6 +3041,8 @@ function (_Plugin) {
       this.player.currentTime(seekTime);
       return;
     }
+
+    console.log('seekTo: option', option);
 
     switch (option) {
       case 'frame':
@@ -3107,6 +3060,7 @@ function (_Plugin) {
     }
 
     if (!isNaN(seekTime)) {
+      console.log('player.scrubbing()', this.player.scrubbing());
       this.player.currentTime(seekTime);
     }
   };

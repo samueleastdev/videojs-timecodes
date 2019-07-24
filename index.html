@@ -1,134 +1,136 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>videojs-frames Demo</title>
-  <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
-  <link href="dist/videojs-frames.css" rel="stylesheet">
+    
+    <meta charset="utf-8">
+    <title>videojs-frames Demo</title>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
+    <link href="dist/videojs-frames.css" rel="stylesheet">
+
 </head>
 <body>
-  <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted>
-    <source src="http://vjs.zencdn.net/v/oceans.mp4" type='video/mp4'>
-    <source src="http://vjs.zencdn.net/v/oceans.webm" type='video/webm'>
-  </video>
-  <ul>
-    <li><a href="/test/debug.html">Run unit tests in browser.</a></li>
-    <li><a href="docs/api/">Read generated docs.</a></li>
-    <li><button id='smpte'>smpte</button></li>
-    <li><button id='frames'>frames</button></li>
-    <li><button id='seconds'>seconds</button></li>
-    <li><button id='miliseconds'>miliseconds</button></li>
-  </ul>
-  <script src="node_modules/video.js/dist/video.js"></script>
-  <script src="dist/videojs-frames.js"></script>
-  <script>
-    (function(window, videojs) {
 
-        // HACK TO STOP SPACE BAR MOVING DOM
-        window.onkeydown = function(e) { 
-            return !(e.keyCode == 32 && e.target == document.body);
-        }; 
-      
-        var omPlayer = window.omPlayer = videojs('videojs-frames-player',{
-                html5: {
-                    hls: {
-                        overrideNative: true // NEW OVERIDE NATIVE::
-                    } 
-                },
-                inactivityTimeout: 0,
-                playbackRates: [0.5, 1, 1.5, 2],      
-                controlBar: {
-                    volumePanel: {inline: false}
-                }
+    <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted>
+
+        <source src="https://s3b-storage-bucket.s3.amazonaws.com/toy-story-4-trailer-3_h1080p.mp4" type='video/mp4'>
+        <track kind='captions' src='https://s3bubble-tests.s3.amazonaws.com/timed.vtt' srclang='en' label='English' />
+        
+    </video>
+
+    <ul>
+        <li><a href="/test/debug.html">Run unit tests in browser.</a></li>
+        <li><a href="docs/api/">Read generated docs.</a></li>
+        <li><button id='smpte'>smpte</button></li>
+        <li><button id='frames'>frames</button></li>
+        <li><button id='seconds'>seconds</button></li>
+        <li><button id='miliseconds'>miliseconds</button></li>
+    </ul>
+
+    <script src="node_modules/video.js/dist/video.js"></script>
+    <script src="dist/videojs-frames.js"></script>
+    <script>
+
+        (function(window, videojs) {
+
+            // HACK TO STOP SPACE BAR MOVING DOM
+            window.onkeydown = function(e) { 
+                return !(e.keyCode == 32 && e.target == document.body);
+            }; 
+          
+            var omPlayer = window.omPlayer = videojs('videojs-frames-player',{
+                    html5: {
+                        hls: {
+                            overrideNative: true // NEW OVERIDE NATIVE::
+                        } 
+                    },
+                    preload: 'metadata',
+                    inactivityTimeout: 0,
+                    playbackRates: [0.5, 1, 1.5, 2],      
+                    controlBar: {
+                        volumePanel: {
+                            inline: false
+                        }
+                    }
+                });
+          
+            var frames = window.frames = omPlayer.frames({
+                framerate: 24
             });
-      
-        var frames = window.frames = omPlayer.frames({
-            framerate: 24
-        });
 
-        // Moving this outside of plugin for know!
-        omPlayer.on('keydown', function(event){
+            // Moving this outside of plugin for know!
+            omPlayer.on('keydown', function(event){
 
-            console.log('keyDown', event);
+                var that = this;
 
-            var that = this;
+                // Play Pause
+                if(event.which === 32){
 
-            // Play Pause
-            if(event.which === 32){
+                    if (this.paused()) {
+                                
+                        this.play();
 
-                if (this.paused()) {
-                            
-                    this.play();
+                    }else{
 
-                }else{
+                        this.pause();
+                      
+                    }
 
-                    this.pause();
-                  
                 }
 
-            }
+                // Arrow Left
+                if(event.which === 37){
 
-            // Arrow Left
-            if(event.which === 37){
+                    this.frames().seekBackward(1);
 
-                this.frames().seekBackward(1, function(response){
+                }
 
-                    //that.frames().trigger('updateDisplay');
-                            
+                // Arrow Right
+                if(event.which === 39){
+
+                    this.frames().seekForward(1);
+
+                }
+
+            });
+
+            var smpte = document.getElementById("smpte");
+            smpte.addEventListener("click",function(e){
+              
+                omPlayer.frames().trigger('switchTimecode', {
+                    format: 'SMPTE'
                 });
 
-            }
+            },false);
 
-            // Arrow Right
-            if(event.which === 39){
-
-                this.frames().seekForward(1, function(response){
-
-                    //that.frames().trigger('updateDisplay');
-
+            var frames = document.getElementById("frames");
+            frames.addEventListener("click",function(e){
+              
+                omPlayer.frames().trigger('switchTimecode', {
+                    format: 'frames'
                 });
 
-            }
+            },false);
 
-        });
+             var seconds = document.getElementById("seconds");
+            seconds.addEventListener("click",function(e){
+              
+                omPlayer.frames().trigger('switchTimecode', {
+                    format: 'seconds'
+                });
 
-        var smpte = document.getElementById("smpte");
-        smpte.addEventListener("click",function(e){
-          
-            omPlayer.frames().trigger('switch', {
-                format: 'SMPTE'
-            });
+            },false);
 
-        },false);
+             var miliseconds = document.getElementById("miliseconds");
+            miliseconds.addEventListener("click",function(e){
+              
+                omPlayer.frames().trigger('switchTimecode', {
+                    format: 'miliseconds'
+                });
 
-        var frames = document.getElementById("frames");
-        frames.addEventListener("click",function(e){
-          
-            omPlayer.frames().trigger('switch', {
-                format: 'frames'
-            });
+            },false);
 
-        },false);
-
-         var seconds = document.getElementById("seconds");
-        seconds.addEventListener("click",function(e){
-          
-            omPlayer.frames().trigger('switch', {
-                format: 'seconds'
-            });
-
-        },false);
-
-         var miliseconds = document.getElementById("miliseconds");
-        miliseconds.addEventListener("click",function(e){
-          
-            omPlayer.frames().trigger('switch', {
-                format: 'miliseconds'
-            });
-
-        },false);
-
-    }(window, window.videojs));
-  </script>
+        }(window, window.videojs));
+    </script>
 </body>
 </html>
