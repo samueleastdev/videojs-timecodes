@@ -3056,7 +3056,6 @@ function (_Plugin) {
     }
 
     if (!isNaN(seekTime)) {
-      console.log('player.scrubbing()', this.player.scrubbing());
       this.player.currentTime(seekTime);
     }
   };

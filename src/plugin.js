@@ -341,14 +341,14 @@ class Frames extends Plugin {
                     
                     this.options.clippingDisplayed = false;
                 
-                }else{
+                }else{ 
                     
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
 
                     this.options.clippingDisplayed = true;
-
+ 
                 }
 
             break;
@@ -732,8 +732,6 @@ class Frames extends Plugin {
         }
         
         if (!isNaN(seekTime)) {
-
-            console.log('player.scrubbing()',this.player.scrubbing());
 
             this.player.currentTime(seekTime);
          

@@ -5,132 +5,164 @@
     <meta charset="utf-8">
     <title>videojs-frames Demo</title>
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
     <link href="dist/videojs-frames.css" rel="stylesheet">
 
 </head>
 <body>
 
-    <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted>
-
-        <source src="https://s3b-storage-bucket.s3.amazonaws.com/toy-story-4-trailer-3_h1080p.mp4" type='video/mp4'>
-        <track kind='captions' src='https://s3bubble-tests.s3.amazonaws.com/timed.vtt' srclang='en' label='English' />
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         
-    </video>
+        <a class="navbar-brand" href="#">Tests</a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <ul>
-        <li><a href="/test/debug.html">Run unit tests in browser.</a></li>
-        <li><a href="docs/api/">Read generated docs.</a></li>
-        <li><button id='smpte'>smpte</button></li>
-        <li><button id='frames'>frames</button></li>
-        <li><button id='seconds'>seconds</button></li>
-        <li><button id='miliseconds'>miliseconds</button></li>
-    </ul>
+    </nav>
+
+    <div class="container-fluid">
+
+        <div class="mx-auto"><p></p></div>
+
+        <div class="row">
+
+            <div class="col-8">
+                
+                <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted>
+
+                    <source src="https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised.mp4" type='video/mp4'>
+                    <track kind='captions' src='https://s3bubble-tests.s3.amazonaws.com/timed.vtt' srclang='en' label='English' />
+                    
+                </video>
+
+            </div>
+            <div class="col-4">
+                
+                <h5>Test Encoding</h5>
+
+                <ul class="list-group">
+                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.webm','video/webm');">webm</li>
+                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.ogv','video/webm');">ogv</li>
+                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised.mp4','video/mp4');">web-optimised.mp4</li>
+                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised-yt-720.mp4','video/mp4');">web-optimised-yt-720.mp4</li>
+                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised-720.mp4','video/mp4');">web-optimised-720.mp4</li>
+                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised-480.mp4','video/mp4');">web-optimised-480.mp4</li>
+                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.mov','video/quicktime');">aladdin.mov</li>
+                </ul>
+
+                <div class="mx-auto"><p></p></div>
+
+                <h5>API Calls</h5>
+
+                <ul class="list-group">
+                    
+                    <li class="list-group-item" onclick="setTimecode('SMPTE');">SMPTE</li>
+                    <li class="list-group-item" onclick="setTimecode('frames');">frames</li>
+                    <li class="list-group-item" onclick="setTimecode('seconds');">seconds</li>
+                    <li class="list-group-item" onclick="setTimecode('miliseconds');">miliseconds</li>
+                    <li class="list-group-item" onclick="setTimecode('time');">time</li>
+                    <li class="list-group-item"><a href="/test/debug.html">Run unit tests in browser.</a></li>
+                    <li class="list-group-item"><a href="docs/api/">Read generated docs.</a></li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+
+    
+
+    
 
     <script src="node_modules/video.js/dist/video.js"></script>
     <script src="dist/videojs-frames.js"></script>
     <script>
 
-        (function(window, videojs) {
-
-            // HACK TO STOP SPACE BAR MOVING DOM
-            window.onkeydown = function(e) { 
-                return !(e.keyCode == 32 && e.target == document.body);
-            }; 
-          
-            var omPlayer = window.omPlayer = videojs('videojs-frames-player',{
-                    html5: {
-                        hls: {
-                            overrideNative: true // NEW OVERIDE NATIVE::
-                        } 
-                    },
-                    preload: 'metadata',
-                    inactivityTimeout: 0,
-                    playbackRates: [0.5, 1, 1.5, 2],      
-                    controlBar: {
-                        volumePanel: {
-                            inline: false
-                        }
+        // HACK TO STOP SPACE BAR MOVING DOM
+        window.onkeydown = function(e) { 
+            return !(e.keyCode == 32 && e.target == document.body);
+        }; 
+      
+        var omPlayer = window.omPlayer = videojs('videojs-frames-player',{
+                html5: {
+                    hls: {
+                        overrideNative: true // NEW OVERIDE NATIVE::
+                    } 
+                },
+                preload: 'metadata',
+                inactivityTimeout: 0,
+                playbackRates: [0.5, 1, 1.5, 2],      
+                controlBar: {
+                    volumePanel: {
+                        inline: false
                     }
-                });
-          
-            var frames = window.frames = omPlayer.frames({
-                framerate: 24
+                }
+            });
+      
+        var frames = window.frames = omPlayer.frames({
+            framerate: 23.98
+        });
+
+        // Moving this outside of plugin for know!
+        omPlayer.on('keydown', function(event){
+
+            var that = this;
+
+            // Play Pause
+            if(event.which === 32){
+
+                if (this.paused()) {
+                            
+                    this.play();
+
+                }else{
+
+                    this.pause();
+                  
+                }
+
+            }
+
+            // Arrow Left
+            if(event.which === 37){
+
+                this.frames().seekBackward(1);
+
+            }
+
+            // Arrow Right
+            if(event.which === 39){
+
+                this.frames().seekForward(1);
+
+            }
+
+        });
+
+        function setTimecode(timecode){
+
+            omPlayer.frames().trigger('switchTimecode', {
+                format: timecode
             });
 
-            // Moving this outside of plugin for know!
-            omPlayer.on('keydown', function(event){
+        }
 
-                var that = this;
+        function setSrc(url, type){
 
-                // Play Pause
-                if(event.which === 32){
-
-                    if (this.paused()) {
-                                
-                        this.play();
-
-                    }else{
-
-                        this.pause();
-                      
-                    }
-
-                }
-
-                // Arrow Left
-                if(event.which === 37){
-
-                    this.frames().seekBackward(1);
-
-                }
-
-                // Arrow Right
-                if(event.which === 39){
-
-                    this.frames().seekForward(1);
-
-                }
-
+            omPlayer.src({
+                src: url,
+                type: type
             });
 
-            var smpte = document.getElementById("smpte");
-            smpte.addEventListener("click",function(e){
-              
-                omPlayer.frames().trigger('switchTimecode', {
-                    format: 'SMPTE'
-                });
+            return;
 
-            },false);
+        }
 
-            var frames = document.getElementById("frames");
-            frames.addEventListener("click",function(e){
-              
-                omPlayer.frames().trigger('switchTimecode', {
-                    format: 'frames'
-                });
-
-            },false);
-
-             var seconds = document.getElementById("seconds");
-            seconds.addEventListener("click",function(e){
-              
-                omPlayer.frames().trigger('switchTimecode', {
-                    format: 'seconds'
-                });
-
-            },false);
-
-             var miliseconds = document.getElementById("miliseconds");
-            miliseconds.addEventListener("click",function(e){
-              
-                omPlayer.frames().trigger('switchTimecode', {
-                    format: 'miliseconds'
-                });
-
-            },false);
-
-        }(window, window.videojs));
     </script>
 </body>
 </html>

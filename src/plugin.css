@@ -264,7 +264,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
  */
 
 .noUi-target {
-    background: #FAFAFA;
+    background: #0f466c;
     border-radius: 4px;
 }
 
@@ -273,7 +273,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 }
 
 .noUi-connect {
-    background: #0f466c;
+    background: #FAFAFA;
 }
 
 
