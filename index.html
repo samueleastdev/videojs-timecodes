@@ -28,7 +28,7 @@
 
         <div class="row">
 
-            <div class="col-8">
+            <div class="col-12">
                 
                 <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted>
 
@@ -38,9 +38,16 @@
                 </video>
 
             </div>
+
+        </div>
+
+        <div class="mx-auto"><p></p></div>
+
+        <div class="row">
+
             <div class="col-4">
                 
-                <h5>Test Encoding</h5>
+                <!--<h5>Test Encoding</h5>
 
                 <ul class="list-group">
                     <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.webm','video/webm');">webm</li>
@@ -52,7 +59,7 @@
                     <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.mov','video/quicktime');">aladdin.mov</li>
                 </ul>
 
-                <div class="mx-auto"><p></p></div>
+                <div class="mx-auto"><p></p></div>-->
 
                 <h5>API Calls</h5>
 
@@ -105,7 +112,8 @@
             });
       
         var frames = window.frames = omPlayer.frames({
-            framerate: 23.98
+            framerate: 23.98,
+            bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin-1sec.bif'
         });
 
         // Moving this outside of plugin for know!

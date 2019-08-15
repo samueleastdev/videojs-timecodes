@@ -5,6 +5,22 @@ import {
 
 import './components/clipping-ui.js';
 import noUiSlider from '../node_modules/nouislider/distribute/nouislider.js';
+
+import { BIFParser } from './parser.js';
+
+import bifMouseTimeDisplay from './components/bif-mouse-time-display.js';
+
+videojs.registerComponent('BIFMouseTimeDisplay', bifMouseTimeDisplay);
+
+const VjsSeekBar = videojs.getComponent('SeekBar');
+
+const vjsSeekBarChildren = VjsSeekBar.prototype.options_.children;
+
+const mouseTimeDisplayIndex = vjsSeekBarChildren.indexOf('mouseTimeDisplay');
+
+vjsSeekBarChildren.splice(mouseTimeDisplayIndex, 1, 'BIFMouseTimeDisplay');
+
+/*import Mortgage from './components/mortgage2.js';*/
  
 const Plugin = videojs.getPlugin('plugin');
 const MenuButton = videojs.getComponent('MenuButton');
@@ -13,7 +29,7 @@ const Component = videojs.getComponent('Component');
 
 // Default options for the plugin.
 const defaults = {
-    format: 'time',
+    format: 'time', 
     frameRate: 24,
     clippingEnabled: true,
     clippingDisplayed: false
@@ -52,9 +68,13 @@ class Frames extends Plugin {
      */
     constructor(player, options) {
 
-        super(player);
+        super(player, options);
 
         this.options = videojs.mergeOptions(defaults, options);
+
+        /*let example = new Mortgage(10, 12);
+
+        console.log('example',example.update());*/
 
         // Hide the remaining time replaced by timecode
         this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide();
@@ -62,8 +82,6 @@ class Frames extends Plugin {
         this.player.ready(() => {
 
             this.player.addClass('vjs-frames');
-
-            console.info('Player ready...');
 
             // Check if clipping should be enabled
             if(this.options.clippingEnabled){
@@ -77,7 +95,38 @@ class Frames extends Plugin {
 
             this.createTimeDisplay(); 
 
-            this.listen('time'); // start listening to the time 
+            // CHECK FO BIF
+            if(this.options.bif){
+                
+                const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
+
+                console.log('BIFMouseTimeDisplay', BIFMouseTimeDisplay);
+
+                document.getElementById('bif-container').style.display = 'none';
+               
+
+                this.player.addClass('video-has-bif');
+
+                const request = new XMLHttpRequest();
+
+                request.open('GET', this.options.bif, true);
+                request.responseType = 'arraybuffer';
+
+                request.onload = (event) => {
+
+                    if (event.target.status !== 200) {
+                      return;
+                    }
+
+                    console.log(event.target.response);
+                    BIFMouseTimeDisplay.render({
+                      data: event.target.response,
+                    });
+                };
+
+                request.send(null);
+
+            }
 
         });
 
@@ -228,25 +277,51 @@ class Frames extends Plugin {
             step: 1,
             range: {
                 'min': 0,
-                'max': parseInt(that.totalFrames())
+                'max': 100 //parseInt(that.totalFrames())
             }
         });
 
-        slider.noUiSlider.on('update', function(ind, ui){
+        const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
+
+        slider.noUiSlider.on('update', function(ind, ui, event){
 
             that.player.pause();
                 
             if (ui === 0) {
+
+                // gets the time in seconds
+                const time = BIFMouseTimeDisplay.getCurrentOMTimeAtEvent(event[0]);
+
+                // gets the image
+                const image = BIFMouseTimeDisplay.getCurrentImageAtTime(time);
                 
-                 that.seekTo({
-                    frame: Math.round(ind[0])
+                BIFMouseTimeDisplay.updateTemplate({
+                  image: image,
+                  left: event[0],
+                  time: Math.floor(time)
                 });
+
+                /*that.seekTo({
+                    frame: Math.round(ind[0])
+                });*/
             
             } else {
 
-                 that.seekTo({
-                    frame: Math.round(ind[1])
+                // gets the time in seconds
+                const time = BIFMouseTimeDisplay.getCurrentOMTimeAtEvent(event[1]);
+
+                // gets the image
+                const image = BIFMouseTimeDisplay.getCurrentImageAtTime(time);
+
+                BIFMouseTimeDisplay.updateTemplate({
+                  image: image,
+                  left: event[1],
+                  time: Math.floor(time)
                 });
+
+                /*that.seekTo({
+                    frame: Math.round(ind[1])
+                });*/
             
             }
 
@@ -333,19 +408,28 @@ class Frames extends Plugin {
         switch (json.item) {
             case 'enable':
                 
+                
                 if(this.options.clippingDisplayed){
+
+                    this.stopListen();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
                     
+                    document.getElementById('bif-container').style.display = 'none';
+
                     this.options.clippingDisplayed = false;
                 
                 }else{ 
+
+                    this.listen('time'); // start listening to the time 
                     
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
+                    
+                    document.getElementById('bif-container').style.display = 'block';
 
                     this.options.clippingDisplayed = true;
  

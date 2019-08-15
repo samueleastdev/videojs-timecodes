@@ -37,6 +37,19 @@
     }
 }
 
+.bif-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.bif-container .bif img{
+    width: 100%;
+    height: auto;
+}
+
 .vjs-control-text {
   background-color: rgba(0,0,0,0.85);
     border-radius: 5px;
