@@ -72,10 +72,6 @@ class Frames extends Plugin {
 
         this.options = videojs.mergeOptions(defaults, options);
 
-        /*let example = new Mortgage(10, 12);
-
-        console.log('example',example.update());*/
-
         // Hide the remaining time replaced by timecode
         this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide();
 
@@ -83,33 +79,34 @@ class Frames extends Plugin {
 
             this.player.addClass('vjs-frames');
 
-            // Check if clipping should be enabled
-            if(this.options.clippingEnabled){
-                
-                console.info('Clipping menu enabled');
-                this.createClippingMenu(); 
-
-            }
-
             this.createTimecodeMenu();
 
             this.createTimeDisplay(); 
 
             // CHECK FO BIF
             if(this.options.bif){
+
+                var that = this;
+
+                // Check if clipping should be enabled
+                if(this.options.clippingEnabled){
+
+                    this.one(player, ['timeupdate'], function(){
+
+                        that.createClippingMenu();
+
+                    });
+
+                }
                 
                 const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
-
-                console.log('BIFMouseTimeDisplay', BIFMouseTimeDisplay);
-
-                document.getElementById('bif-container').style.display = 'none';
                
-
                 this.player.addClass('video-has-bif');
 
                 const request = new XMLHttpRequest();
 
                 request.open('GET', this.options.bif, true);
+
                 request.responseType = 'arraybuffer';
 
                 request.onload = (event) => {
@@ -118,13 +115,23 @@ class Frames extends Plugin {
                       return;
                     }
 
-                    console.log(event.target.response);
                     BIFMouseTimeDisplay.render({
                       data: event.target.response,
                     });
+
                 };
 
                 request.send(null);
+
+                this.player.controlBar.progressControl.on('mousemove', function(event) {
+
+                    if(that.options.clippingDisplayed === false){
+
+                        BIFMouseTimeDisplay.handleProgressBarMove(event);
+
+                    }
+                 
+                });
 
             }
 
@@ -140,6 +147,8 @@ class Frames extends Plugin {
 
         this.on('updateClipping', this.updateClipping);
 
+        // Start the interval to listen to the player
+        this.listen('time');
 
     }
 
@@ -273,11 +282,12 @@ class Frames extends Plugin {
 
         noUiSlider.create(slider, {
             start: [0, that.totalFrames()],
+            //start: [0, 100],
             connect: true,
             step: 1,
             range: {
                 'min': 0,
-                'max': 100 //parseInt(that.totalFrames())
+                'max': parseInt(that.totalFrames())
             }
         });
 
@@ -285,45 +295,23 @@ class Frames extends Plugin {
 
         slider.noUiSlider.on('update', function(ind, ui, event){
 
-            that.player.pause();
+            if(event[0] === 0){
                 
-            if (ui === 0) {
-
-                // gets the time in seconds
-                const time = BIFMouseTimeDisplay.getCurrentOMTimeAtEvent(event[0]);
-
-                // gets the image
-                const image = BIFMouseTimeDisplay.getCurrentImageAtTime(time);
-                
-                BIFMouseTimeDisplay.updateTemplate({
-                  image: image,
-                  left: event[0],
-                  time: Math.floor(time)
-                });
-
-                /*that.seekTo({
-                    frame: Math.round(ind[0])
-                });*/
-            
-            } else {
-
-                // gets the time in seconds
-                const time = BIFMouseTimeDisplay.getCurrentOMTimeAtEvent(event[1]);
-
-                // gets the image
-                const image = BIFMouseTimeDisplay.getCurrentImageAtTime(time);
-
-                BIFMouseTimeDisplay.updateTemplate({
-                  image: image,
-                  left: event[1],
-                  time: Math.floor(time)
-                });
-
-                /*that.seekTo({
-                    frame: Math.round(ind[1])
-                });*/
-            
+                return;
+ 
             }
+
+            document.getElementById('bif-container').style.display = 'block';
+
+            var percentage = Math.floor((event[ui]/parseInt(that.totalFrames()))*100);
+
+            that.player.pause();
+
+            BIFMouseTimeDisplay.handleSliderMove(percentage);
+            
+            that.seekTo({
+                frame: Math.round(ind[ui])
+            });
 
         });
 
@@ -408,28 +396,29 @@ class Frames extends Plugin {
         switch (json.item) {
             case 'enable':
                 
-                
                 if(this.options.clippingDisplayed){
 
-                    this.stopListen();
+                    document.getElementById(json.item).innerText = 'enable';
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
                     
-                    document.getElementById('bif-container').style.display = 'none';
+                    //document.getElementById('bif-container').style.display = 'none';
 
                     this.options.clippingDisplayed = false;
                 
                 }else{ 
 
-                    this.listen('time'); // start listening to the time 
+                    document.getElementById('bif-container').style.display = 'block';
+
+                    document.getElementById(json.item).innerText = 'disable';
                     
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
                     
-                    document.getElementById('bif-container').style.display = 'block';
+                    //document.getElementById('bif-container').style.display = 'block';
 
                     this.options.clippingDisplayed = true;
  
@@ -788,8 +777,6 @@ class Frames extends Plugin {
             return;
         
         }
-
-        console.log('seekTo: option',option);
 
         switch(option) {
 

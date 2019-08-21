@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>videojs-frames Demo</title>
+    <title>OM Demo</title>
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
@@ -12,14 +12,31 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         
-        <a class="navbar-brand" href="#">Tests</a>
+        <a class="navbar-brand" href="#">Demo</a>
         
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    API Calls
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" onclick="setTimecode('SMPTE');">SMPTE</a>
+                        <a class="dropdown-item" onclick="setTimecode('frames');">frames</a>
+                        <a class="dropdown-item" onclick="setTimecode('seconds');">seconds</a>
+                        <a class="dropdown-item" onclick="setTimecode('miliseconds');">miliseconds</a>
+                        <a class="dropdown-item" onclick="setTimecode('time');">time</a>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
     </nav>
 
     <div class="container-fluid">
@@ -30,9 +47,9 @@
 
             <div class="col-12">
                 
-                <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted>
+                <video id="videojs-frames-player" class="video-js  vjs-16-9 vjs-default-skin" controls muted poster="https://d3edqwp3msshbp.cloudfront.net/00000109.jpg">
 
-                    <source src="https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised.mp4" type='video/mp4'>
+                    <source src="https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised.mp4#t=0.1" type='video/mp4'>
                     <track kind='captions' src='https://s3bubble-tests.s3.amazonaws.com/timed.vtt' srclang='en' label='English' />
                     
                 </video>
@@ -43,49 +60,11 @@
 
         <div class="mx-auto"><p></p></div>
 
-        <div class="row">
-
-            <div class="col-4">
-                
-                <!--<h5>Test Encoding</h5>
-
-                <ul class="list-group">
-                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.webm','video/webm');">webm</li>
-                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.ogv','video/webm');">ogv</li>
-                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised.mp4','video/mp4');">web-optimised.mp4</li>
-                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised-yt-720.mp4','video/mp4');">web-optimised-yt-720.mp4</li>
-                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised-720.mp4','video/mp4');">web-optimised-720.mp4</li>
-                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin-web-optimised-480.mp4','video/mp4');">web-optimised-480.mp4</li>
-                    <li class="list-group-item" onclick="setSrc('https://d3edqwp3msshbp.cloudfront.net/aladdin.mov','video/quicktime');">aladdin.mov</li>
-                </ul>
-
-                <div class="mx-auto"><p></p></div>-->
-
-                <h5>API Calls</h5>
-
-                <ul class="list-group">
-                    
-                    <li class="list-group-item" onclick="setTimecode('SMPTE');">SMPTE</li>
-                    <li class="list-group-item" onclick="setTimecode('frames');">frames</li>
-                    <li class="list-group-item" onclick="setTimecode('seconds');">seconds</li>
-                    <li class="list-group-item" onclick="setTimecode('miliseconds');">miliseconds</li>
-                    <li class="list-group-item" onclick="setTimecode('time');">time</li>
-                    <li class="list-group-item"><a href="/test/debug.html">Run unit tests in browser.</a></li>
-                    <li class="list-group-item"><a href="docs/api/">Read generated docs.</a></li>
-
-                </ul>
-
-            </div>
-
-        </div>
-
     </div>
     
-
-    
-
-    
-
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="node_modules/video.js/dist/video.js"></script>
     <script src="dist/videojs-frames.js"></script>
     <script>
@@ -113,7 +92,7 @@
       
         var frames = window.frames = omPlayer.frames({
             framerate: 23.98,
-            bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin-1sec.bif'
+            bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin720.bif'
         });
 
         // Moving this outside of plugin for know!
@@ -139,6 +118,7 @@
             // Arrow Left
             if(event.which === 37){
 
+                document.getElementById('bif-container').style.display = 'none';
                 this.frames().seekBackward(1);
 
             }
@@ -146,6 +126,7 @@
             // Arrow Right
             if(event.which === 39){
 
+                document.getElementById('bif-container').style.display = 'none';
                 this.frames().seekForward(1);
 
             }
