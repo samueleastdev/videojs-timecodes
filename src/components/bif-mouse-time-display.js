@@ -1,5 +1,7 @@
 /* global videojs */
 
+import videojs from 'video.js';
+
 /* eslint-disable no-underscore-dangle */
 import {
     BIFParser
@@ -65,6 +67,7 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
     static createBIFTime() {
         const BIFTime = document.createElement('span');
 
+        BIFTime.id = 'bif-time';
         BIFTime.className = 'bif-time';
 
         return BIFTime;
@@ -157,19 +160,19 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
      *
      * @param {Event} event
      */
-    handleSliderMove(percentage) {
+    handleSliderMove(data) {
 
-        if (!percentage) {
+        if (!data) {
 
             return;
 
-        }
+        } 
 
         this.removeClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
         this.addClass(document.getElementById("bif-container"), 'bif-container-full');
  
         // gets the time in seconds
-        const time = this.getCurrentOMTimeAtEvent(percentage);
+        const time = this.getCurrentOMTimeAtEvent(data.percentage);
 
         // gets the image
         const image = this.getCurrentImageAtTime(time);
@@ -177,8 +180,9 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
         // updates the template with new information
         this.updateTemplate({
             image: image,
-            left: percentage,
-            time: Math.floor(time)
+            left: data.left,
+            time: Math.floor(time),
+            format: false
         });
 
     }
@@ -204,7 +208,8 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
         this.updateTemplate({
             image: image,
             left: event.clientX,
-            time: Math.floor(time)
+            time: Math.floor(time),
+            format: true
         });
 
     }
@@ -299,12 +304,21 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
     updateTemplate(data) {
 
         if (data.image) {
+            
             this.BIFImage.src = data.image;
+
+            document.getElementById('bif-container').style.display = 'block';
+
         }
 
         document.getElementById("bif-container").style.left = (data.left - 15) + 'px';
 
-        this.BIFTime.innerHTML = videojs.formatTime(data.time);
+        if(data.format){
+
+            this.BIFTime.innerHTML = videojs.formatTime(data.time);
+
+        }
+        
     }
 
     hasClass(ele,cls) {

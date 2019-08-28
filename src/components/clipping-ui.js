@@ -1,3 +1,6 @@
+
+import videojs from 'video.js';
+
 var Component = videojs.getComponent('Component');
 
 var ClippingBar = videojs.extend(Component, {

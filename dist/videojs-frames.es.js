@@ -1,5 +1,5 @@
-/*! @name videojs-frames @version 0.0.0 @license MIT */
-import videojs$1 from 'video.js';
+/*! @name videojs-frames @version 0.0.2 @license MIT */
+import videojs from 'video.js';
 
 function _inheritsLoose(subClass, superClass) {
   subClass.prototype = Object.create(superClass.prototype);
@@ -15,7 +15,7 @@ function _assertThisInitialized(self) {
   return self;
 }
 
-var version = "0.0.0";
+var version = "0.0.2";
 
 var Component = videojs.getComponent('Component');
 var ClippingBar = videojs.extend(Component, {
@@ -2753,6 +2753,7 @@ function (_VjsMouseTimeDisplay) {
 
   BIFMouseTimeDisplay.createBIFTime = function createBIFTime() {
     var BIFTime = document.createElement('span');
+    BIFTime.id = 'bif-time';
     BIFTime.className = 'bif-time';
     return BIFTime;
   };
@@ -2843,22 +2844,23 @@ function (_VjsMouseTimeDisplay) {
    */
   ;
 
-  _proto.handleSliderMove = function handleSliderMove(percentage) {
-    if (!percentage) {
+  _proto.handleSliderMove = function handleSliderMove(data) {
+    if (!data) {
       return;
     }
 
     this.removeClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
     this.addClass(document.getElementById("bif-container"), 'bif-container-full'); // gets the time in seconds
 
-    var time = this.getCurrentOMTimeAtEvent(percentage); // gets the image
+    var time = this.getCurrentOMTimeAtEvent(data.percentage); // gets the image
 
     var image = this.getCurrentImageAtTime(time); // updates the template with new information
 
     this.updateTemplate({
       image: image,
-      left: percentage,
-      time: Math.floor(time)
+      left: data.left,
+      time: Math.floor(time),
+      format: false
     });
   };
 
@@ -2877,7 +2879,8 @@ function (_VjsMouseTimeDisplay) {
     this.updateTemplate({
       image: image,
       left: event.clientX,
-      time: Math.floor(time)
+      time: Math.floor(time),
+      format: true
     });
   }
   /**
@@ -2964,10 +2967,14 @@ function (_VjsMouseTimeDisplay) {
   _proto.updateTemplate = function updateTemplate(data) {
     if (data.image) {
       this.BIFImage.src = data.image;
+      document.getElementById('bif-container').style.display = 'block';
     }
 
     document.getElementById("bif-container").style.left = data.left - 15 + 'px';
-    this.BIFTime.innerHTML = videojs.formatTime(data.time);
+
+    if (data.format) {
+      this.BIFTime.innerHTML = videojs.formatTime(data.time);
+    }
   };
 
   _proto.hasClass = function hasClass(ele, cls) {
@@ -2988,17 +2995,15 @@ function (_VjsMouseTimeDisplay) {
   return BIFMouseTimeDisplay;
 }(VjsMouseTimeDisplay);
 
-videojs$1.registerComponent('BIFMouseTimeDisplay', BIFMouseTimeDisplay);
-var VjsSeekBar = videojs$1.getComponent('SeekBar');
+videojs.registerComponent('BIFMouseTimeDisplay', BIFMouseTimeDisplay);
+var VjsSeekBar = videojs.getComponent('SeekBar');
 var vjsSeekBarChildren = VjsSeekBar.prototype.options_.children;
 var mouseTimeDisplayIndex = vjsSeekBarChildren.indexOf('mouseTimeDisplay');
 vjsSeekBarChildren.splice(mouseTimeDisplayIndex, 1, 'BIFMouseTimeDisplay');
-/*import Mortgage from './components/mortgage2.js';*/
-
-var Plugin = videojs$1.getPlugin('plugin');
-var MenuButton = videojs$1.getComponent('MenuButton');
-var Menu = videojs$1.getComponent('Menu');
-var Component$1 = videojs$1.getComponent('Component'); // Default options for the plugin.
+var Plugin = videojs.getPlugin('plugin');
+var MenuButton = videojs.getComponent('MenuButton');
+var Menu = videojs.getComponent('Menu');
+var Component$1 = videojs.getComponent('Component'); // Default options for the plugin.
 
 var defaults$1 = {
   format: 'time',
@@ -3045,7 +3050,7 @@ function (_Plugin) {
     var _this;
 
     _this = _Plugin.call(this, player, options) || this;
-    _this.options = videojs$1.mergeOptions(defaults$1, options); // Hide the remaining time replaced by timecode
+    _this.options = videojs.mergeOptions(defaults$1, options); // Hide the remaining time replaced by timecode
 
     _this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide();
 
@@ -3103,7 +3108,9 @@ function (_Plugin) {
 
     _this.on('seekTo', _this.seekTo);
 
-    _this.on('updateClipping', _this.updateClipping); // Start the interval to listen to the player
+    _this.on('updateClipping', _this.updateClipping);
+
+    _this.on('partialRestore', _this.partialRestore); // Start the interval to listen to the player
 
 
     _this.listen('time');
@@ -3115,7 +3122,7 @@ function (_Plugin) {
 
   _proto.createTimeDisplay = function createTimeDisplay() {
     var that = this;
-    var TimeDisplay = videojs$1.extend(MenuButton, {
+    var TimeDisplay = videojs.extend(MenuButton, {
       constructor: function constructor() {
         MenuButton.apply(this, arguments);
         this.addClass('vjs-timecode-menu');
@@ -3126,21 +3133,21 @@ function (_Plugin) {
         });
       }
     });
-    videojs$1.registerComponent('timeDisplay', TimeDisplay);
+    videojs.registerComponent('timeDisplay', TimeDisplay);
     this.player.getChild('controlBar').addChild('timeDisplay', {});
     this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('timeDisplay').el(), this.player.getChild('controlBar').getChild('progressControl').el());
   };
 
   _proto.createTimecodeMenu = function createTimecodeMenu() {
     var that = this;
-    var TimecodeButton = videojs$1.extend(MenuButton, {
+    var TimecodeButton = videojs.extend(MenuButton, {
       constructor: function constructor() {
         MenuButton.apply(this, arguments);
         this.addClass('vjs-button');
         this.controlText("Timecode");
         this.children_[0].addClass('vjs-fa-icon');
-        this.children_[0].addClass('fa');
-        this.children_[0].addClass('fa-clock-o'); // Get the menu ul 
+        this.children_[0].addClass('far');
+        this.children_[0].addClass('fa-clock'); // Get the menu ul 
 
         var menuUL = this.el().children[1].children[0];
         var header = document.createElement("li");
@@ -3183,7 +3190,7 @@ function (_Plugin) {
       },
       handleClick: function handleClick() {}
     });
-    videojs$1.registerComponent('timecodeButton', TimecodeButton);
+    videojs.registerComponent('timecodeButton', TimecodeButton);
     this.player.getChild('controlBar').addChild('timecodeButton', {});
     this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('timecodeButton').el(), this.player.getChild('controlBar').getChild('progressControl').el());
   };
@@ -3213,34 +3220,46 @@ function (_Plugin) {
       document.getElementById('bif-container').style.display = 'block';
       var percentage = Math.floor(event[ui] / parseInt(that.totalFrames()) * 100);
       that.player.pause();
-      BIFMouseTimeDisplay.handleSliderMove(percentage);
+      BIFMouseTimeDisplay.handleSliderMove({
+        left: ui === 0 ? Math.floor(document.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x + 16) : Math.floor(document.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x + 16),
+        percentage: percentage
+      });
       that.seekTo({
         frame: Math.round(ind[ui])
       });
     });
+    slider.noUiSlider.on('end', function (ind, ui, event) {
+      if (event[0] === 0) {
+        return;
+      }
+
+      document.getElementById('bif-container').style.display = 'none';
+    });
     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
-    var ClipButton = videojs$1.extend(MenuButton, {
+    var ClipButton = videojs.extend(MenuButton, {
       constructor: function constructor() {
         MenuButton.apply(this, arguments);
         this.addClass('vjs-button');
         this.controlText("Clipping");
         this.children_[0].addClass('vjs-fa-icon');
-        this.children_[0].addClass('fa');
-        this.children_[0].addClass('fa-scissors'); // Get the menu ul 
+        this.children_[0].addClass('fas');
+        this.children_[0].addClass('fa-cut'); // Get the menu ul 
 
         var menuUL = this.el().children[1].children[0];
         var header = document.createElement("li");
         header.className = 'vjs-om-menu-header';
-        header.innerHTML = 'Settings';
+        header.innerHTML = 'Clipping';
         menuUL.appendChild(header);
-        var options = [{
-          title: 'Shortcuts',
-          id: 'shortcuts'
-        }, {
+        var options = [
+        /*{
+        title: 'Shortcuts',
+        id: 'shortcuts'
+        },*/
+        {
           title: 'Partial Restore',
           id: 'restore'
         }, {
-          title: 'Enable',
+          title: 'Enable Clipping',
           id: 'enable'
         }];
         var i;
@@ -3262,7 +3281,7 @@ function (_Plugin) {
       },
       handleClick: function handleClick() {}
     });
-    videojs$1.registerComponent('clipButton', ClipButton);
+    videojs.registerComponent('clipButton', ClipButton);
     this.player.getChild('controlBar').addChild('clipButton', {});
     this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('clipButton').el(), this.player.getChild('controlBar').getChild('progressControl').el());
   };
@@ -3271,14 +3290,14 @@ function (_Plugin) {
     switch (json.item) {
       case 'enable':
         if (this.options.clippingDisplayed) {
-          document.getElementById(json.item).innerText = 'enable';
+          document.getElementById(json.item).innerText = 'Enable Clipping';
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
           this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide(); //document.getElementById('bif-container').style.display = 'none';
 
           this.options.clippingDisplayed = false;
         } else {
           document.getElementById('bif-container').style.display = 'block';
-          document.getElementById(json.item).innerText = 'disable';
+          document.getElementById(json.item).innerText = 'Disable Clipping';
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
           this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show(); //document.getElementById('bif-container').style.display = 'block';
 
@@ -3290,7 +3309,7 @@ function (_Plugin) {
       case 'restore':
         var slider = document.getElementById('range');
         var restore = slider.noUiSlider.get();
-        alert(JSON.stringify(restore));
+        this.trigger('partialRestore', restore);
         return;
         break;
 
@@ -3298,6 +3317,8 @@ function (_Plugin) {
         return;
     }
   };
+
+  _proto.partialRestore = function partialRestore() {};
 
   _proto.listen = function listen(format, tick) {
     var that = this;
@@ -3328,26 +3349,31 @@ function (_Plugin) {
     switch (this.options.format) {
       case 'SMPTE':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSMPTE();
+        document.getElementById('bif-time').innerText = this.toSMPTE();
         return this.toSMPTE();
         break;
 
       case 'time':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toTime();
+        document.getElementById('bif-time').innerText = this.toTime();
         return this.toTime();
         break;
 
       case 'frames':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
+        document.getElementById('bif-time').innerText = this.toFrames();
         return this.toFrames();
         break;
 
       case 'seconds':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSeconds();
+        document.getElementById('bif-time').innerText = this.toSeconds();
         return this.toSeconds();
         break;
 
       case 'milliseconds':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toMilliseconds();
+        document.getElementById('bif-time').innerText = this.toMilliseconds();
         return this.toMilliseconds();
         break;
 
@@ -3599,6 +3625,6 @@ Frames.defaultState = {}; // Include the version number.
 
 Frames.VERSION = version; // Register the plugin with video.js.
 
-videojs$1.registerPlugin('frames', Frames);
+videojs.registerPlugin('frames', Frames);
 
 export default Frames;

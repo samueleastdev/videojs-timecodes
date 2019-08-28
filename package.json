@@ -1,7 +1,7 @@
 {
   "name": "videojs-frames",
-  "version": "0.0.0",
-  "description": "Framerate plugin",
+  "version": "0.0.2",
+  "description": "Framerate plugin with bif fast scroll support",
   "main": "dist/videojs-frames.cjs.js",
   "module": "dist/videojs-frames.es.js",
   "generator-videojs-plugin": {
@@ -88,6 +88,7 @@
     "video.js": "^7.6.2"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.10.2",
     "@videojs/generator-helpers": "~1.0.0",
     "jsdoc": "github:BrandonOCasey/jsdoc#feat/plugin-from-cli",
     "karma": "^4.2.0",

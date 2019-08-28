@@ -4,7 +4,7 @@
     
     <meta charset="utf-8">
     <title>OM Demo</title>
-    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
     <link href="dist/videojs-frames.css" rel="stylesheet">
@@ -95,6 +95,12 @@
             bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin720.bif'
         });
 
+        frames.on('partialRestore', function(event, data){
+
+            console.log('partialRestore', data);
+
+        });
+ 
         // Moving this outside of plugin for know!
         omPlayer.on('keydown', function(event){
 
