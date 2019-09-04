@@ -38,11 +38,11 @@
 }
 
 .bif-container {
-    display: none;
+    display: block;
 }
 
-
 .bif-container-full {
+    background: #888;
     bottom: 60px;
     position: absolute;
     -webkit-transform: translateX(-50%);
@@ -62,6 +62,7 @@
 }
 
 .bif-container-thumbnail {
+    background: #888; 
     bottom: 60px;
     position: absolute;
     -webkit-transform: translateX(-50%);
@@ -72,6 +73,7 @@
 }
 
 .bif-container-thumbnail .bif-time {
+    position: relative;
     width: 100%;
     display: block;
     background: #466eab;

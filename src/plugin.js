@@ -128,8 +128,27 @@ class Frames extends Plugin {
 
                         BIFMouseTimeDisplay.handleProgressBarMove(event);
 
+                        if(document.getElementById('bif-container')){
+
+                            document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'block';
+
+                        }
+
                     }
                  
+                });
+
+                this.player.controlBar.progressControl.on('mouseout', function(event) {
+
+                    if(that.options.clippingDisplayed === false){
+                        
+                        if(document.getElementById('bif-container')){
+
+                            document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'none';
+
+                        }
+
+                    }
                 });
 
             }
@@ -302,8 +321,6 @@ class Frames extends Plugin {
  
             }
 
-            document.getElementById('bif-container').style.display = 'block';
-
             var percentage = Math.floor((event[ui]/parseInt(that.totalFrames()))*100);
 
             that.player.pause();
@@ -312,6 +329,8 @@ class Frames extends Plugin {
                 left: (ui === 0) ? Math.floor(document.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x + 16) : Math.floor(document.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x + 16),
                 percentage: percentage
             });
+
+            document.getElementsByClassName('bif-container-full')[0].style.display = 'block';
             
             that.seekTo({
                 frame: Math.round(ind[ui])
@@ -327,7 +346,7 @@ class Frames extends Plugin {
  
             }
 
-            document.getElementById('bif-container').style.display = 'none';
+            document.getElementsByClassName('bif-container-full')[0].style.display = 'none';
 
         });
 
@@ -419,22 +438,16 @@ class Frames extends Plugin {
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
-                    
-                    //document.getElementById('bif-container').style.display = 'none';
 
                     this.options.clippingDisplayed = false;
                 
                 }else{ 
-
-                    document.getElementById('bif-container').style.display = 'block';
 
                     document.getElementById(json.item).innerText = 'Disable Clipping';
                     
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
-                    
-                    //document.getElementById('bif-container').style.display = 'block';
 
                     this.options.clippingDisplayed = true;
  
@@ -482,6 +495,16 @@ class Frames extends Plugin {
 
     }
 
+    setTimecode(time){
+
+        if(document.getElementsByClassName("bif-time-full")[0]){
+
+            document.getElementsByClassName("bif-time-full")[0].innerText = time;
+
+        }
+
+    }
+
     updateDisplay(){
 
         // Create a loop if clipping enabled
@@ -510,7 +533,7 @@ class Frames extends Plugin {
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSMPTE();
 
-                document.getElementById('bif-time').innerText = this.toSMPTE();
+                this.setTimecode(this.toSMPTE());
 
                 return this.toSMPTE();
 
@@ -519,7 +542,7 @@ class Frames extends Plugin {
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toTime();
 
-                document.getElementById('bif-time').innerText = this.toTime();
+                this.setTimecode(this.toTime());
 
                 return this.toTime();
 
@@ -528,7 +551,7 @@ class Frames extends Plugin {
 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
 
-                document.getElementById('bif-time').innerText = this.toFrames();
+                this.setTimecode(this.toFrames());
 
                 return this.toFrames();
            
@@ -537,7 +560,7 @@ class Frames extends Plugin {
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSeconds();
 
-                document.getElementById('bif-time').innerText = this.toSeconds();
+                this.setTimecode(this.toSeconds());
 
                 return this.toSeconds();
 
@@ -546,7 +569,7 @@ class Frames extends Plugin {
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toMilliseconds();
 
-                document.getElementById('bif-time').innerText = this.toMilliseconds();
+                this.setTimecode(this.toMilliseconds());
 
                 return this.toMilliseconds();
 

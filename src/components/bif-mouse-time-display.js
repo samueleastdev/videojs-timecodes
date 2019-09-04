@@ -36,6 +36,7 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
      * @returns {HTMLElement} BIFElement
      */
     static createBIFElement(root) {
+        
         const BIFElement = document.createElement('div');
 
         BIFElement.id = 'bif-container';
@@ -44,6 +45,7 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
         root.appendChild(BIFElement);
 
         return BIFElement;
+
     }
 
     /**
@@ -52,11 +54,13 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
      * @returns {HTMLElement} BIFImage
      */
     static createBIFImage() {
+
         const BIFImage = document.createElement('img');
 
         BIFImage.className = 'bif-image';
 
         return BIFImage;
+    
     }
 
     /**
@@ -65,15 +69,18 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
      * @returns {HTMLElement} BIFTime
      */
     static createBIFTime() {
+
         const BIFTime = document.createElement('span');
 
         BIFTime.id = 'bif-time';
         BIFTime.className = 'bif-time';
 
         return BIFTime;
+
     }
 
     constructor(player, options = {}) {
+
         super(player, options);
 
         this.BIFElement = BIFMouseTimeDisplay.createBIFElement(player.el());
@@ -169,9 +176,12 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
         } 
 
         this.removeClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
+        this.removeClass(document.getElementById("bif-time"), 'bif-container-thumbnail');
+
         this.addClass(document.getElementById("bif-container"), 'bif-container-full');
+        this.addClass(document.getElementById("bif-time"), 'bif-time-full');
  
-        // gets the time in seconds
+        // gets the time in seconds 
         const time = this.getCurrentOMTimeAtEvent(data.percentage);
 
         // gets the image
@@ -196,7 +206,10 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
         }
 
         this.removeClass(document.getElementById("bif-container"), 'bif-container-full');
+        this.removeClass(document.getElementById("bif-time"), 'bif-container-full');
+
         this.addClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
+        this.addClass(document.getElementById("bif-time"), 'bif-time-thumbnail');
 
         // gets the time in seconds
         const time = this.getCurrentTimeAtEvent(event);
@@ -307,15 +320,13 @@ export default class BIFMouseTimeDisplay extends VjsMouseTimeDisplay {
             
             this.BIFImage.src = data.image;
 
-            document.getElementById('bif-container').style.display = 'block';
-
         }
 
         document.getElementById("bif-container").style.left = (data.left - 15) + 'px';
 
-        if(data.format){
+        if(data.format){ 
 
-            this.BIFTime.innerHTML = videojs.formatTime(data.time);
+            document.getElementsByClassName("bif-time-thumbnail")[0].innerHTML = videojs.formatTime(data.time);
 
         }
         

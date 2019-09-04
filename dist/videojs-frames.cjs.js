@@ -2854,7 +2854,9 @@ function (_VjsMouseTimeDisplay) {
     }
 
     this.removeClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
-    this.addClass(document.getElementById("bif-container"), 'bif-container-full'); // gets the time in seconds
+    this.removeClass(document.getElementById("bif-time"), 'bif-container-thumbnail');
+    this.addClass(document.getElementById("bif-container"), 'bif-container-full');
+    this.addClass(document.getElementById("bif-time"), 'bif-time-full'); // gets the time in seconds 
 
     var time = this.getCurrentOMTimeAtEvent(data.percentage); // gets the image
 
@@ -2874,7 +2876,9 @@ function (_VjsMouseTimeDisplay) {
     }
 
     this.removeClass(document.getElementById("bif-container"), 'bif-container-full');
-    this.addClass(document.getElementById("bif-container"), 'bif-container-thumbnail'); // gets the time in seconds
+    this.removeClass(document.getElementById("bif-time"), 'bif-container-full');
+    this.addClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
+    this.addClass(document.getElementById("bif-time"), 'bif-time-thumbnail'); // gets the time in seconds
 
     var time = this.getCurrentTimeAtEvent(event); // gets the image
 
@@ -2971,13 +2975,12 @@ function (_VjsMouseTimeDisplay) {
   _proto.updateTemplate = function updateTemplate(data) {
     if (data.image) {
       this.BIFImage.src = data.image;
-      document.getElementById('bif-container').style.display = 'block';
     }
 
     document.getElementById("bif-container").style.left = data.left - 15 + 'px';
 
     if (data.format) {
-      this.BIFTime.innerHTML = videojs.formatTime(data.time);
+      document.getElementsByClassName("bif-time-thumbnail")[0].innerHTML = videojs.formatTime(data.time);
     }
   };
 
@@ -3099,6 +3102,18 @@ function (_Plugin) {
         _this.player.controlBar.progressControl.on('mousemove', function (event) {
           if (that.options.clippingDisplayed === false) {
             BIFMouseTimeDisplay.handleProgressBarMove(event);
+
+            if (document.getElementById('bif-container')) {
+              document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'block';
+            }
+          }
+        });
+
+        _this.player.controlBar.progressControl.on('mouseout', function (event) {
+          if (that.options.clippingDisplayed === false) {
+            if (document.getElementById('bif-container')) {
+              document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'none';
+            }
           }
         });
       }
@@ -3221,13 +3236,13 @@ function (_Plugin) {
         return;
       }
 
-      document.getElementById('bif-container').style.display = 'block';
       var percentage = Math.floor(event[ui] / parseInt(that.totalFrames()) * 100);
       that.player.pause();
       BIFMouseTimeDisplay.handleSliderMove({
         left: ui === 0 ? Math.floor(document.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x + 16) : Math.floor(document.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x + 16),
         percentage: percentage
       });
+      document.getElementsByClassName('bif-container-full')[0].style.display = 'block';
       that.seekTo({
         frame: Math.round(ind[ui])
       });
@@ -3237,7 +3252,7 @@ function (_Plugin) {
         return;
       }
 
-      document.getElementById('bif-container').style.display = 'none';
+      document.getElementsByClassName('bif-container-full')[0].style.display = 'none';
     });
     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
     var ClipButton = videojs.extend(MenuButton, {
@@ -3296,15 +3311,12 @@ function (_Plugin) {
         if (this.options.clippingDisplayed) {
           document.getElementById(json.item).innerText = 'Enable Clipping';
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
-          this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide(); //document.getElementById('bif-container').style.display = 'none';
-
+          this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
           this.options.clippingDisplayed = false;
         } else {
-          document.getElementById('bif-container').style.display = 'block';
           document.getElementById(json.item).innerText = 'Disable Clipping';
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
-          this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show(); //document.getElementById('bif-container').style.display = 'block';
-
+          this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
           this.options.clippingDisplayed = true;
         }
 
@@ -3335,6 +3347,12 @@ function (_Plugin) {
     }, tick ? tick : 1000 / this.options.frameRate);
   };
 
+  _proto.setTimecode = function setTimecode(time) {
+    if (document.getElementsByClassName("bif-time-full")[0]) {
+      document.getElementsByClassName("bif-time-full")[0].innerText = time;
+    }
+  };
+
   _proto.updateDisplay = function updateDisplay() {
     // Create a loop if clipping enabled
     if (this.options.clippingEnabled && this.options.clippingDisplayed) {
@@ -3353,31 +3371,31 @@ function (_Plugin) {
     switch (this.options.format) {
       case 'SMPTE':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSMPTE();
-        document.getElementById('bif-time').innerText = this.toSMPTE();
+        this.setTimecode(this.toSMPTE());
         return this.toSMPTE();
         break;
 
       case 'time':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toTime();
-        document.getElementById('bif-time').innerText = this.toTime();
+        this.setTimecode(this.toTime());
         return this.toTime();
         break;
 
       case 'frames':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
-        document.getElementById('bif-time').innerText = this.toFrames();
+        this.setTimecode(this.toFrames());
         return this.toFrames();
         break;
 
       case 'seconds':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSeconds();
-        document.getElementById('bif-time').innerText = this.toSeconds();
+        this.setTimecode(this.toSeconds());
         return this.toSeconds();
         break;
 
       case 'milliseconds':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toMilliseconds();
-        document.getElementById('bif-time').innerText = this.toMilliseconds();
+        this.setTimecode(this.toMilliseconds());
         return this.toMilliseconds();
         break;
 
