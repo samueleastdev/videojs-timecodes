@@ -3294,12 +3294,6 @@ function (_Plugin) {
         header.innerHTML = 'Clipping';
         menuUL.appendChild(header);
         var options = [{
-          title: 'Keyboard Shortcuts',
-          id: 'shortcuts'
-        }, {
-          title: 'Partial Restore',
-          id: 'restore'
-        }, {
           title: 'Enable Clipping',
           id: 'enable'
         }];
@@ -3330,7 +3324,7 @@ function (_Plugin) {
   _proto.updateProgressCircle = function updateProgressCircle() {
     var slider = document.getElementById(this.player.id() + '_range');
     var base = slider.getElementsByClassName('noUi-progress')[0];
-    base.style.left = Math.round(this.player.currentTime() / this.player.duration() * 100) + '%';
+    base.style.left = this.player.currentTime() / this.player.duration() * 100 + '%';
   };
 
   _proto.updateClipping = function updateClipping(event, json) {
@@ -3356,9 +3350,7 @@ function (_Plugin) {
         break;
 
       case 'restore':
-        var slider = document.getElementById(this.player.id() + '_range');
-        var restore = slider.noUiSlider.get();
-        this.trigger('partialRestore', restore);
+        this.trigger('partialRestore');
         return;
         break;
 
@@ -3367,7 +3359,11 @@ function (_Plugin) {
     }
   };
 
-  _proto.partialRestore = function partialRestore() {};
+  _proto.partialRestore = function partialRestore(callback) {
+    var slider = document.getElementById(this.player.id() + '_range');
+    var restore = slider.noUiSlider.get();
+    callback(restore);
+  };
 
   _proto.listen = function listen(format, tick) {
     var that = this;

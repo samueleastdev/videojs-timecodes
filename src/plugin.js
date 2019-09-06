@@ -374,9 +374,6 @@ class Frames extends Plugin {
                 menuUL.appendChild(header);
 
                 var options = [{
-                    title: 'Partial Restore',
-                    id: 'restore'
-                },{
                     title: 'Enable Clipping',
                     id: 'enable'
                 }];
@@ -428,7 +425,7 @@ class Frames extends Plugin {
 
         var base = slider.getElementsByClassName('noUi-progress')[0];
         
-        base.style.left = Math.round(this.player.currentTime() / this.player.duration() * 100) + '%';
+        base.style.left = (this.player.currentTime() / this.player.duration() * 100) + '%';
 
     }
 
@@ -468,12 +465,8 @@ class Frames extends Plugin {
 
             break;
           case 'restore':
-                
-                var slider = document.getElementById(this.player.id() + '_range');
 
-                var restore = slider.noUiSlider.get();
-
-                this.trigger('partialRestore', restore);
+                this.trigger('partialRestore');
 
                 return;
 
@@ -488,7 +481,15 @@ class Frames extends Plugin {
         
     }
 
-    partialRestore() {}
+    partialRestore(callback) {
+
+        var slider = document.getElementById(this.player.id() + '_range');
+
+        var restore = slider.noUiSlider.get();
+
+        callback(restore);        
+
+    }
 
     listen(format, tick) {
 

@@ -164,14 +164,6 @@
             bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin720.bif'
         });
 
-        frames.on('partialRestore', function(event, data){
-
-            console.log('partialRestore', data);
-
-            alert('SEND DATA TO API: ' + JSON.stringify(data));
-
-        });
-
         // Moving this outside of plugin for know!
         omPlayer2.on('keydown', function(event){
 
@@ -182,6 +174,8 @@
             for(var i=0; i < hideBif.length; i++){
                 hideBif[i].style.display = 'none';
             }
+
+            console.log(event.which);
 
             // Play Pause
             if(event.which === 32){
@@ -209,6 +203,19 @@
             if(event.which === 39){
 
                 this.frames().seekForward(1);
+
+            }
+
+            // Partial restore
+            if(event.which === 80){
+
+                this.frames().partialRestore(function(frames){
+                    
+                    console.log('data',frames);
+
+                    alert('SEND DATA TO API: ' + JSON.stringify(frames));
+
+                });
 
             }
 
