@@ -374,9 +374,6 @@ class Frames extends Plugin {
                 menuUL.appendChild(header);
 
                 var options = [{
-                    title: 'Keyboard Shortcuts',
-                    id: 'shortcuts'
-                },{
                     title: 'Partial Restore',
                     id: 'restore'
                 },{
