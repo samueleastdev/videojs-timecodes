@@ -25,13 +25,11 @@ var Component = videojs.getComponent('Component');
 var ClippingBar = videojs.extend(Component, {
   constructor: function constructor(player, options) {
     Component.apply(this, arguments);
-    this.on('click', this.handleClick);
   },
-  handleClick: function handleClick() {},
   createEl: function createEl() {
     return videojs.dom.createEl('div', {
       className: 'g-ranger',
-      id: 'range'
+      id: this.player().id() + '_range'
     });
   }
 });
@@ -2729,10 +2727,9 @@ function (_VjsMouseTimeDisplay) {
    * @param {HTMLElement} root
    * @returns {HTMLElement} BIFElement
    */
-  BIFMouseTimeDisplay.createBIFElement = function createBIFElement(root) {
+  BIFMouseTimeDisplay.createBIFElement = function createBIFElement(root, cls) {
     var BIFElement = document.createElement('div');
-    BIFElement.id = 'bif-container';
-    BIFElement.className = 'bif-container';
+    BIFElement.className = cls;
     root.appendChild(BIFElement);
     return BIFElement;
   }
@@ -2743,7 +2740,7 @@ function (_VjsMouseTimeDisplay) {
    */
   ;
 
-  BIFMouseTimeDisplay.createBIFImage = function createBIFImage() {
+  BIFMouseTimeDisplay.createBIFImage = function createBIFImage(cls) {
     var BIFImage = document.createElement('img');
     BIFImage.className = 'bif-image';
     return BIFImage;
@@ -2757,7 +2754,6 @@ function (_VjsMouseTimeDisplay) {
 
   BIFMouseTimeDisplay.createBIFTime = function createBIFTime() {
     var BIFTime = document.createElement('span');
-    BIFTime.id = 'bif-time';
     BIFTime.className = 'bif-time';
     return BIFTime;
   };
@@ -2770,9 +2766,13 @@ function (_VjsMouseTimeDisplay) {
     }
 
     _this = _VjsMouseTimeDisplay.call(this, player, options) || this;
-    _this.BIFElement = BIFMouseTimeDisplay.createBIFElement(player.el());
+    _this.BIFElement = BIFMouseTimeDisplay.createBIFElement(player.el(), 'bif-thumbnail');
 
     _this.render(options);
+
+    _this.BIFElementSlider = BIFMouseTimeDisplay.createBIFElement(player.el(), 'bif-slider');
+
+    _this.renderSlider(options);
 
     return _this;
   }
@@ -2851,45 +2851,53 @@ function (_VjsMouseTimeDisplay) {
   _proto.handleSliderMove = function handleSliderMove(data) {
     if (!data) {
       return;
-    }
+    } // gets the time in seconds 
 
-    this.removeClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
-    this.removeClass(document.getElementById("bif-time"), 'bif-container-thumbnail');
-    this.addClass(document.getElementById("bif-container"), 'bif-container-full');
-    this.addClass(document.getElementById("bif-time"), 'bif-time-full'); // gets the time in seconds 
 
     var time = this.getCurrentOMTimeAtEvent(data.percentage); // gets the image
 
-    var image = this.getCurrentImageAtTime(time); // updates the template with new information
+    var image = this.getCurrentImageAtTime(time);
 
-    this.updateTemplate({
-      image: image,
-      left: data.left,
-      time: Math.floor(time),
-      format: false
-    });
-  };
-
-  _proto.handleProgressBarMove = function handleProgressBarMove(event) {
-    if (!event) {
-      return;
+    if (videojs(this.player().id()).hasClass('video-is-dragging')) {
+      this.BIFElementSlider.style.display = 'block';
     }
 
-    this.removeClass(document.getElementById("bif-container"), 'bif-container-full');
-    this.removeClass(document.getElementById("bif-time"), 'bif-container-full');
-    this.addClass(document.getElementById("bif-container"), 'bif-container-thumbnail');
-    this.addClass(document.getElementById("bif-time"), 'bif-time-thumbnail'); // gets the time in seconds
+    this.BIFElementSlider.style.left = data.left + 'px';
+
+    if (image) {
+      this.BIFImageSlider.src = image;
+    }
+  };
+
+  _proto.handleSliderOut = function handleSliderOut() {
+    this.BIFElementSlider.style.display = 'none';
+  };
+
+  _proto.handleProgressBarMove = function handleProgressBarMove(event, parent) {
+    if (!event) {
+      return;
+    } // gets the time in seconds
+
 
     var time = this.getCurrentTimeAtEvent(event); // gets the image
 
-    var image = this.getCurrentImageAtTime(time); // updates the template with new information
+    var image = this.getCurrentImageAtTime(time);
+    this.BIFElement.style.display = 'block';
+    this.BIFElement.style.left = event.offsetX + parent + 'px';
 
-    this.updateTemplate({
-      image: image,
-      left: event.clientX,
-      time: Math.floor(time),
-      format: true
-    });
+    if (image) {
+      this.BIFImage.src = image;
+    }
+
+    this.BIFTime.innerHTML = videojs.formatTime(Math.floor(time));
+  };
+
+  _proto.handleProgressBarOut = function handleProgressBarOut() {
+    this.BIFElement.style.display = 'none';
+  };
+
+  _proto.setSliderTime = function setSliderTime(time) {
+    this.BIFTimeSlider.innerText = time;
   }
   /**
    * Determines the existence of the `BIFParser` which manages the index and all
@@ -2955,8 +2963,7 @@ function (_VjsMouseTimeDisplay) {
 
   _proto.template = function template() {
     var template = document.createElement('div');
-    template.className = 'bif';
-    template.id = 'bif'; // append image element only if the images are ready
+    template.className = 'bif'; // append image element only if the images are ready
 
     if (this.hasImages()) {
       template.appendChild(this.BIFImage);
@@ -2964,39 +2971,57 @@ function (_VjsMouseTimeDisplay) {
 
     template.appendChild(this.BIFTime);
     return template;
+  };
+
+  _proto.renderSlider = function renderSlider(options) {
+    this.configure(options); // create BIF image element
+
+    var BIFImageSlider = this.options_.createBIFImage.apply(this);
+
+    if (BIFImageSlider instanceof HTMLElement) {
+      this.BIFImageSlider = BIFImageSlider;
+    } else {
+      this.BIFImageSlider = BIFMouseTimeDisplay.createBIFImage();
+    } // create BIF time element
+
+
+    var BIFTimeSlider = this.options_.createBIFTime.apply(this);
+
+    if (BIFTimeSlider instanceof HTMLElement) {
+      this.BIFTimeSlider = BIFTimeSlider;
+    } else {
+      this.BIFTimeSlider = BIFMouseTimeDisplay.createBIFTime();
+    } // create BIF template element
+
+
+    var template = this.options_.template.apply(this);
+
+    if (!(template instanceof HTMLElement)) {
+      template = this.templateSlider();
+    } // replace template contents every render
+
+
+    this.BIFElementSlider.innerHTML = '';
+    this.BIFElementSlider.appendChild(template);
   }
   /**
-   * Update template elements with new content generated on mouse move.
+   * The primary template for the component. Typically houses the `BIFImage` and
+   * `BIFTime` elements to be styled or altered.
    *
-   * @param {Object} options.image
+   * @returns {HTMLElement} template
    */
   ;
 
-  _proto.updateTemplate = function updateTemplate(data) {
-    if (data.image) {
-      this.BIFImage.src = data.image;
+  _proto.templateSlider = function templateSlider() {
+    var template = document.createElement('div');
+    template.className = 'bif'; // append image element only if the images are ready
+
+    if (this.hasImages()) {
+      template.appendChild(this.BIFImageSlider);
     }
 
-    document.getElementById("bif-container").style.left = data.left - 15 + 'px';
-
-    if (data.format) {
-      document.getElementsByClassName("bif-time-thumbnail")[0].innerHTML = videojs.formatTime(data.time);
-    }
-  };
-
-  _proto.hasClass = function hasClass(ele, cls) {
-    return !!ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
-  };
-
-  _proto.addClass = function addClass(ele, cls) {
-    if (!this.hasClass(ele, cls)) ele.className += " " + cls;
-  };
-
-  _proto.removeClass = function removeClass(ele, cls) {
-    if (this.hasClass(ele, cls)) {
-      var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
-      ele.className = ele.className.replace(reg, ' ');
-    }
+    template.appendChild(this.BIFTimeSlider);
+    return template;
   };
 
   return BIFMouseTimeDisplay;
@@ -3095,27 +3120,31 @@ function (_Plugin) {
           BIFMouseTimeDisplay.render({
             data: event.target.response
           });
+          BIFMouseTimeDisplay.renderSlider({
+            data: event.target.response
+          });
         };
 
         request.send(null);
 
         _this.player.controlBar.progressControl.on('mousemove', function (event) {
           if (that.options.clippingDisplayed === false) {
-            BIFMouseTimeDisplay.handleProgressBarMove(event);
-
-            if (document.getElementById('bif-container')) {
-              document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'block';
-            }
+            BIFMouseTimeDisplay.handleProgressBarMove(event, this.el().offsetLeft);
           }
         });
 
         _this.player.controlBar.progressControl.on('mouseout', function (event) {
           if (that.options.clippingDisplayed === false) {
-            if (document.getElementById('bif-container')) {
-              document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'none';
-            }
+            BIFMouseTimeDisplay.handleProgressBarOut();
           }
-        });
+        }); // Add listners for bif clipping
+
+
+        _this.on('updateClipping', _this.updateClipping);
+
+        _this.on('partialRestore', _this.partialRestore);
+
+        _this.on(player, ['timeupdate'], _this.updateProgressCircle);
       }
     });
 
@@ -3125,11 +3154,7 @@ function (_Plugin) {
 
     _this.on(player, ['seeking'], _this.updateDisplay);
 
-    _this.on('seekTo', _this.seekTo);
-
-    _this.on('updateClipping', _this.updateClipping);
-
-    _this.on('partialRestore', _this.partialRestore); // Start the interval to listen to the player
+    _this.on('seekTo', _this.seekTo); // Start the interval to listen to the player
 
 
     _this.listen('time');
@@ -3217,42 +3242,41 @@ function (_Plugin) {
   _proto.createClippingMenu = function createClippingMenu() {
     var that = this;
     this.player.getChild('controlBar').getChild('progressControl').addChild('ClippingBar', {
-      text: ''
+      text: 'dvs'
     });
-    var slider = document.getElementById('range');
+    var slider = document.getElementById(this.player.id() + '_range');
     nouislider.create(slider, {
       start: [0, that.totalFrames()],
-      //start: [0, 100],
       connect: true,
       step: 1,
       range: {
         'min': 0,
-        'max': parseInt(that.totalFrames())
+        'max': that.totalFrames()
       }
     });
+    var base = slider.getElementsByClassName('noUi-base')[0];
+    var elProgress = document.createElement('div');
+    elProgress.className = 'noUi-progress';
+    base.appendChild(elProgress);
     var BIFMouseTimeDisplay = this.player.controlBar.progressControl.seekBar.BIFMouseTimeDisplay;
+    slider.noUiSlider.on('start', function (ind, ui, event) {
+      that.player.addClass('video-is-dragging');
+    });
     slider.noUiSlider.on('update', function (ind, ui, event) {
-      if (event[0] === 0) {
-        return;
-      }
-
       var percentage = Math.floor(event[ui] / parseInt(that.totalFrames()) * 100);
       that.player.pause();
+      var lower = slider.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x;
+      var upper = slider.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x;
       BIFMouseTimeDisplay.handleSliderMove({
-        left: ui === 0 ? Math.floor(document.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x + 16) : Math.floor(document.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x + 16),
+        left: ui === 0 ? Math.floor(lower + 10) : Math.floor(upper + 10),
         percentage: percentage
       });
-      document.getElementsByClassName('bif-container-full')[0].style.display = 'block';
       that.seekTo({
-        frame: Math.round(ind[ui])
+        frame: Math.round(event[ui])
       });
     });
     slider.noUiSlider.on('end', function (ind, ui, event) {
-      if (event[0] === 0) {
-        return;
-      }
-
-      document.getElementsByClassName('bif-container-full')[0].style.display = 'none';
+      BIFMouseTimeDisplay.handleSliderOut();
     });
     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
     var ClipButton = videojs.extend(MenuButton, {
@@ -3269,12 +3293,10 @@ function (_Plugin) {
         header.className = 'vjs-om-menu-header';
         header.innerHTML = 'Clipping';
         menuUL.appendChild(header);
-        var options = [
-        /*{
-        title: 'Shortcuts',
-        id: 'shortcuts'
-        },*/
-        {
+        var options = [{
+          title: 'Keyboard Shortcuts',
+          id: 'shortcuts'
+        }, {
           title: 'Partial Restore',
           id: 'restore'
         }, {
@@ -3305,25 +3327,36 @@ function (_Plugin) {
     this.player.getChild('controlBar').el().insertBefore(this.player.getChild('controlBar').getChild('clipButton').el(), this.player.getChild('controlBar').getChild('progressControl').el());
   };
 
+  _proto.updateProgressCircle = function updateProgressCircle() {
+    var slider = document.getElementById(this.player.id() + '_range');
+    var base = slider.getElementsByClassName('noUi-progress')[0];
+    base.style.left = Math.round(this.player.currentTime() / this.player.duration() * 100) + '%';
+  };
+
   _proto.updateClipping = function updateClipping(event, json) {
+    var slider = document.getElementById(this.player.id());
+    var shortcutOverlay = slider.getElementsByClassName('shortcutOverlay')[0];
+
     switch (json.item) {
       case 'enable':
         if (this.options.clippingDisplayed) {
           document.getElementById(json.item).innerText = 'Enable Clipping';
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
           this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
+          shortcutOverlay.style.display = 'none';
           this.options.clippingDisplayed = false;
         } else {
           document.getElementById(json.item).innerText = 'Disable Clipping';
           this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
           this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
+          shortcutOverlay.style.display = 'block';
           this.options.clippingDisplayed = true;
         }
 
         break;
 
       case 'restore':
-        var slider = document.getElementById('range');
+        var slider = document.getElementById(this.player.id() + '_range');
         var restore = slider.noUiSlider.get();
         this.trigger('partialRestore', restore);
         return;
@@ -3347,17 +3380,11 @@ function (_Plugin) {
     }, tick ? tick : 1000 / this.options.frameRate);
   };
 
-  _proto.setTimecode = function setTimecode(time) {
-    if (document.getElementsByClassName("bif-time-full")[0]) {
-      document.getElementsByClassName("bif-time-full")[0].innerText = time;
-    }
-  };
-
   _proto.updateDisplay = function updateDisplay() {
     // Create a loop if clipping enabled
     if (this.options.clippingEnabled && this.options.clippingDisplayed) {
       if (!this.player.paused()) {
-        var slider = document.getElementById('range');
+        var slider = document.getElementById(this.player.id() + '_range');
         var restore = slider.noUiSlider.get();
 
         if (this.toFrames() >= restore[1]) {
@@ -3368,34 +3395,36 @@ function (_Plugin) {
       }
     }
 
+    var BIFMouseTimeDisplay = this.player.controlBar.progressControl.seekBar.BIFMouseTimeDisplay;
+
     switch (this.options.format) {
       case 'SMPTE':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSMPTE();
-        this.setTimecode(this.toSMPTE());
+        BIFMouseTimeDisplay.setSliderTime(this.toSMPTE());
         return this.toSMPTE();
         break;
 
       case 'time':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toTime();
-        this.setTimecode(this.toTime());
+        BIFMouseTimeDisplay.setSliderTime(this.toTime());
         return this.toTime();
         break;
 
       case 'frames':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
-        this.setTimecode(this.toFrames());
+        BIFMouseTimeDisplay.setSliderTime(this.toFrames());
         return this.toFrames();
         break;
 
       case 'seconds':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSeconds();
-        this.setTimecode(this.toSeconds());
+        BIFMouseTimeDisplay.setSliderTime(this.toSeconds());
         return this.toSeconds();
         break;
 
       case 'milliseconds':
         this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toMilliseconds();
-        this.setTimecode(this.toMilliseconds());
+        BIFMouseTimeDisplay.setSliderTime(this.toMilliseconds());
         return this.toMilliseconds();
         break;
 

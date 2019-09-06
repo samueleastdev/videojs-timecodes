@@ -118,6 +118,10 @@ class Frames extends Plugin {
                       data: event.target.response,
                     });
 
+                    BIFMouseTimeDisplay.renderSlider({
+                      data: event.target.response,
+                    });
+
                 };
 
                 request.send(null);
@@ -126,13 +130,7 @@ class Frames extends Plugin {
 
                     if(that.options.clippingDisplayed === false){
 
-                        BIFMouseTimeDisplay.handleProgressBarMove(event);
-
-                        if(document.getElementById('bif-container')){
-
-                            document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'block';
-
-                        }
+                        BIFMouseTimeDisplay.handleProgressBarMove(event, this.el().offsetLeft);
 
                     }
                  
@@ -141,15 +139,19 @@ class Frames extends Plugin {
                 this.player.controlBar.progressControl.on('mouseout', function(event) {
 
                     if(that.options.clippingDisplayed === false){
-                        
-                        if(document.getElementById('bif-container')){
 
-                            document.getElementsByClassName('bif-container-thumbnail')[0].style.display = 'none';
-
-                        }
+                        BIFMouseTimeDisplay.handleProgressBarOut();
 
                     }
+
                 });
+
+                // Add listners for bif clipping
+                this.on('updateClipping', this.updateClipping);
+
+                this.on('partialRestore', this.partialRestore);
+
+                this.on(player, ['timeupdate'], this.updateProgressCircle);
 
             }
 
@@ -162,10 +164,6 @@ class Frames extends Plugin {
         this.on(player, ['seeking'], this.updateDisplay);
 
         this.on('seekTo', this.seekTo);
-
-        this.on('updateClipping', this.updateClipping);
-
-        this.on('partialRestore', this.partialRestore);
 
         // Start the interval to listen to the player
         this.listen('time');
@@ -296,57 +294,59 @@ class Frames extends Plugin {
  
         var that = this; 
 
-        this.player.getChild('controlBar').getChild('progressControl').addChild('ClippingBar', {text: ''});
+        this.player.getChild('controlBar').getChild('progressControl').addChild('ClippingBar', {text: 'dvs'});
 
-        var slider = document.getElementById('range');
+        var slider = document.getElementById(this.player.id() + '_range');
 
         noUiSlider.create(slider, {
             start: [0, that.totalFrames()],
-            //start: [0, 100],
             connect: true,
             step: 1,
             range: {
                 'min': 0,
-                'max': parseInt(that.totalFrames())
+                'max': that.totalFrames()
             }
         });
 
+        var base = slider.getElementsByClassName('noUi-base')[0];
+
+        var elProgress = document.createElement('div');
+
+        elProgress.className = 'noUi-progress';
+
+        base.appendChild(elProgress);        
+
         const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
 
-        slider.noUiSlider.on('update', function(ind, ui, event){
+        slider.noUiSlider.on('start', function(ind, ui, event){
 
-            if(event[0] === 0){
-                
-                return;
- 
-            }
+            that.player.addClass('video-is-dragging');
+
+        });
+
+        slider.noUiSlider.on('update', function(ind, ui, event){
 
             var percentage = Math.floor((event[ui]/parseInt(that.totalFrames()))*100);
 
             that.player.pause();
 
+            var lower = (slider.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x);
+            var upper = (slider.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x);
+
             BIFMouseTimeDisplay.handleSliderMove({
-                left: (ui === 0) ? Math.floor(document.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x + 16) : Math.floor(document.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x + 16),
+                left: (ui === 0) ? Math.floor(lower + 10) : Math.floor(upper + 10),
                 percentage: percentage
             });
 
-            document.getElementsByClassName('bif-container-full')[0].style.display = 'block';
-            
             that.seekTo({
-                frame: Math.round(ind[ui])
+                frame: Math.round(event[ui])
             });
 
         });
 
         slider.noUiSlider.on('end', function(ind, ui, event){
 
-            if(event[0] === 0){
-                
-                return;
- 
-            }
-
-            document.getElementsByClassName('bif-container-full')[0].style.display = 'none';
+            BIFMouseTimeDisplay.handleSliderOut();
 
         });
 
@@ -373,10 +373,10 @@ class Frames extends Plugin {
 
                 menuUL.appendChild(header);
 
-                var options = [/*{
-                    title: 'Shortcuts',
+                var options = [{
+                    title: 'Keyboard Shortcuts',
                     id: 'shortcuts'
-                },*/{
+                },{
                     title: 'Partial Restore',
                     id: 'restore'
                 },{
@@ -387,7 +387,6 @@ class Frames extends Plugin {
                 var i;
                 var classIndex = 100;
                 for (i = 0; i < options.length; i++) {
-
 
                     var child = document.createElement("li");
                     
@@ -426,7 +425,20 @@ class Frames extends Plugin {
 
     }
 
+    updateProgressCircle(){
+
+        var slider = document.getElementById(this.player.id() + '_range');
+
+        var base = slider.getElementsByClassName('noUi-progress')[0];
+        
+        base.style.left = Math.round(this.player.currentTime() / this.player.duration() * 100) + '%';
+
+    }
+
     updateClipping(event, json) {
+
+        var slider = document.getElementById(this.player.id());
+        var shortcutOverlay = slider.getElementsByClassName('shortcutOverlay')[0];
 
         switch (json.item) {
             case 'enable':
@@ -439,6 +451,8 @@ class Frames extends Plugin {
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
 
+                    shortcutOverlay.style.display = 'none';
+
                     this.options.clippingDisplayed = false;
                 
                 }else{ 
@@ -449,6 +463,8 @@ class Frames extends Plugin {
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
 
+                    shortcutOverlay.style.display = 'block';
+
                     this.options.clippingDisplayed = true;
  
                 }
@@ -456,7 +472,7 @@ class Frames extends Plugin {
             break;
           case 'restore':
                 
-                var slider = document.getElementById('range');
+                var slider = document.getElementById(this.player.id() + '_range');
 
                 var restore = slider.noUiSlider.get();
 
@@ -495,16 +511,6 @@ class Frames extends Plugin {
 
     }
 
-    setTimecode(time){
-
-        if(document.getElementsByClassName("bif-time-full")[0]){
-
-            document.getElementsByClassName("bif-time-full")[0].innerText = time;
-
-        }
-
-    }
-
     updateDisplay(){
 
         // Create a loop if clipping enabled
@@ -512,7 +518,7 @@ class Frames extends Plugin {
  
             if (!this.player.paused()){
 
-                var slider = document.getElementById('range');
+                var slider = document.getElementById(this.player.id() + '_range');
 
                 var restore = slider.noUiSlider.get();
                 
@@ -528,12 +534,14 @@ class Frames extends Plugin {
 
         }
 
+        const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
+
         switch (this.options.format) {
             case 'SMPTE':
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSMPTE();
 
-                this.setTimecode(this.toSMPTE());
+                BIFMouseTimeDisplay.setSliderTime(this.toSMPTE());
 
                 return this.toSMPTE();
 
@@ -542,7 +550,7 @@ class Frames extends Plugin {
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toTime();
 
-                this.setTimecode(this.toTime());
+                BIFMouseTimeDisplay.setSliderTime(this.toTime());
 
                 return this.toTime();
 
@@ -551,7 +559,7 @@ class Frames extends Plugin {
 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toFrames();
 
-                this.setTimecode(this.toFrames());
+                BIFMouseTimeDisplay.setSliderTime(this.toFrames());
 
                 return this.toFrames();
            
@@ -560,7 +568,7 @@ class Frames extends Plugin {
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toSeconds();
 
-                this.setTimecode(this.toSeconds());
+                BIFMouseTimeDisplay.setSliderTime(this.toSeconds());
 
                 return this.toSeconds();
 
@@ -569,7 +577,7 @@ class Frames extends Plugin {
                 
                 this.player.getChild('controlBar').getChild('timeDisplay').el().innerText = this.toMilliseconds();
 
-                this.setTimecode(this.toMilliseconds());
+                BIFMouseTimeDisplay.setSliderTime(this.toMilliseconds());
 
                 return this.toMilliseconds();
 
