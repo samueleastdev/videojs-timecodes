@@ -339,7 +339,8 @@ class Frames extends Plugin {
             });
 
             that.seekTo({
-                frame: Math.round(event[ui])
+                frame: Math.round(event[ui]),
+                ui: ui
             });
 
         });
@@ -483,11 +484,7 @@ class Frames extends Plugin {
 
     partialRestore(callback) {
 
-        var slider = document.getElementById(this.player.id() + '_range');
-
-        var restore = slider.noUiSlider.get();
-
-        callback(restore);        
+        callback(this.options);        
 
     }
 
@@ -821,7 +818,7 @@ class Frames extends Plugin {
      * @param  {Object} option - Configuration Object for seeking allowed keys are SMPTE, time, frame, seconds, and milliseconds
      * example: { SMPTE: '00:01:12:22' }, { time: '00:01:12' },  { frame: 1750 }, { seconds: 72 }, { milliseconds: 72916 }
      */
-    seekTo(config) {
+    seekTo(config, ui) {
 
         var obj = config || {}, seekTime, SMPTE;
 
@@ -839,6 +836,8 @@ class Frames extends Plugin {
             return;
         
         }
+
+        console.log('obj',obj);
 
         switch(option) {
 
@@ -867,6 +866,20 @@ class Frames extends Plugin {
         if (!isNaN(seekTime)) {
 
             this.player.currentTime(seekTime);
+
+            if(obj.hasOwnProperty('ui')){
+
+                if(obj.ui === 0){
+            
+                    this.options.inSMPTE  = this.toSMPTE();
+                
+                }else{
+                    
+                    this.options.outSMPTE = this.toSMPTE();
+
+                }
+
+            }
          
         }
 

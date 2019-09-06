@@ -1,4 +1,4 @@
-/*! @name videojs-frames @version 0.0.2 @license MIT */
+/*! @name videojs-frames @version 0.0.3 @license MIT */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('video.js')) :
   typeof define === 'function' && define.amd ? define(['video.js'], factory) :
@@ -21,7 +21,7 @@
     return self;
   }
 
-  var version = "0.0.2";
+  var version = "0.0.3";
 
   var Component = videojs.getComponent('Component');
   var ClippingBar = videojs.extend(Component, {
@@ -3274,7 +3274,8 @@
           percentage: percentage
         });
         that.seekTo({
-          frame: Math.round(event[ui])
+          frame: Math.round(event[ui]),
+          ui: ui
         });
       });
       slider.noUiSlider.on('end', function (ind, ui, event) {
@@ -3362,9 +3363,7 @@
     };
 
     _proto.partialRestore = function partialRestore(callback) {
-      var slider = document.getElementById(this.player.id() + '_range');
-      var restore = slider.noUiSlider.get();
-      callback(restore);
+      callback(this.options);
     };
 
     _proto.listen = function listen(format, tick) {
@@ -3631,7 +3630,7 @@
      */
     ;
 
-    _proto.seekTo = function seekTo(config) {
+    _proto.seekTo = function seekTo(config, ui) {
       var obj = config || {},
           seekTime,
           SMPTE;
@@ -3645,6 +3644,8 @@
         this.player.currentTime(seekTime);
         return;
       }
+
+      console.log('obj', obj);
 
       switch (option) {
         case 'frame':
@@ -3663,6 +3664,14 @@
 
       if (!isNaN(seekTime)) {
         this.player.currentTime(seekTime);
+
+        if (obj.hasOwnProperty('ui')) {
+          if (obj.ui === 0) {
+            this.options.inSMPTE = this.toSMPTE();
+          } else {
+            this.options.outSMPTE = this.toSMPTE();
+          }
+        }
       }
     };
 

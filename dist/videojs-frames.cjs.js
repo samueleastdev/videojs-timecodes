@@ -1,4 +1,4 @@
-/*! @name videojs-frames @version 0.0.2 @license MIT */
+/*! @name videojs-frames @version 0.0.3 @license MIT */
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -19,7 +19,7 @@ function _assertThisInitialized(self) {
   return self;
 }
 
-var version = "0.0.2";
+var version = "0.0.3";
 
 var Component = videojs.getComponent('Component');
 var ClippingBar = videojs.extend(Component, {
@@ -3272,7 +3272,8 @@ function (_Plugin) {
         percentage: percentage
       });
       that.seekTo({
-        frame: Math.round(event[ui])
+        frame: Math.round(event[ui]),
+        ui: ui
       });
     });
     slider.noUiSlider.on('end', function (ind, ui, event) {
@@ -3360,9 +3361,7 @@ function (_Plugin) {
   };
 
   _proto.partialRestore = function partialRestore(callback) {
-    var slider = document.getElementById(this.player.id() + '_range');
-    var restore = slider.noUiSlider.get();
-    callback(restore);
+    callback(this.options);
   };
 
   _proto.listen = function listen(format, tick) {
@@ -3629,7 +3628,7 @@ function (_Plugin) {
    */
   ;
 
-  _proto.seekTo = function seekTo(config) {
+  _proto.seekTo = function seekTo(config, ui) {
     var obj = config || {},
         seekTime,
         SMPTE;
@@ -3643,6 +3642,8 @@ function (_Plugin) {
       this.player.currentTime(seekTime);
       return;
     }
+
+    console.log('obj', obj);
 
     switch (option) {
       case 'frame':
@@ -3661,6 +3662,14 @@ function (_Plugin) {
 
     if (!isNaN(seekTime)) {
       this.player.currentTime(seekTime);
+
+      if (obj.hasOwnProperty('ui')) {
+        if (obj.ui === 0) {
+          this.options.inSMPTE = this.toSMPTE();
+        } else {
+          this.options.outSMPTE = this.toSMPTE();
+        }
+      }
     }
   };
 
