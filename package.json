@@ -1,6 +1,6 @@
 {
   "name": "videojs-frames",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Framerate plugin with bif fast scroll support",
   "main": "dist/videojs-frames.cjs.js",
   "module": "dist/videojs-frames.es.js",
