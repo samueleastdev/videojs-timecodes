@@ -358,9 +358,10 @@ class Frames extends Plugin {
             
             this.on(this.player, ['timeupdate'], function(event){
                 
-                var time = this.player.currentTime()
-                marker.setSeconds(time);
-                timeline.setCustomTime(marker, 1);
+                var time = this.player.currentTime();
+                var marker2 = new Date(gDate);
+                marker2.setSeconds(time);
+                timeline.setCustomTime(marker2, 1);
 
             });
 

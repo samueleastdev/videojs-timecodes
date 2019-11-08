@@ -3307,8 +3307,9 @@
 
         _this2.on(_this2.player, ['timeupdate'], function (event) {
           var time = this.player.currentTime();
-          marker.setSeconds(time);
-          timeline.setCustomTime(marker, 1);
+          var marker2 = new Date(gDate);
+          marker2.setSeconds(time);
+          timeline.setCustomTime(marker2, 1);
         });
 
         timeline.on('select', function (properties) {
