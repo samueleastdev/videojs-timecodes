@@ -9,6 +9,21 @@
     <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/videojs-overlay/1.1.4/videojs-overlay.css" rel="stylesheet">
     <link href="dist/videojs-frames.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://visjs.github.io/vis-timeline/dist/vis-timeline-graph2d.min.js"></script>
+    <link href="https://visjs.github.io/vis-timeline/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    <!--<script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>-->
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body{
+            font-family: 'Montserrat', sans-serif;
+        }
+        #mynetwork {
+            width: 960px;
+            height: 960px;
+        }
+    </style>
 
 </head>
 <body>
@@ -44,7 +59,7 @@
 
         <div class="mx-auto"><p></p></div>
 
-        <div class="row">
+        <!--<div class="row">
 
             <div class="col-1"><p></p></div>
 
@@ -65,15 +80,13 @@
 
         </div>
 
-        <div class="mx-auto"><p></p></div>
+        <div class="mx-auto"><p></p></div>-->
 
         <div class="row">
 
             <div class="col-1"><p></p></div>
 
             <div class="col-10">
-
-                <h2>With Bif</h2>
                 
                 <video id="videojs-frames-player2" class="video-js  vjs-16-9 vjs-default-skin" controls muted poster="https://d3edqwp3msshbp.cloudfront.net/00000109.jpg">
 
@@ -81,6 +94,10 @@
                     <track kind='captions' src='https://s3bubble-tests.s3.amazonaws.com/timed.vtt' srclang='en' label='English' />
                     
                 </video>
+
+                <div id="visualization"></div>
+
+                <div id="mynetwork"></div>
 
             </div>
 
@@ -106,7 +123,7 @@
             return !(e.keyCode == 32 && e.target == document.body);
         }; 
       
-        var omPlayer = videojs('videojs-frames-player',{
+        /*var omPlayer = videojs('videojs-frames-player',{
             html5: {
                 hls: {
                     overrideNative: true // NEW OVERIDE NATIVE::
@@ -125,7 +142,7 @@
         omPlayer.frames({
             framerate: 23.98,
             //bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin720.bif'
-        });
+        });*/
 
         var omPlayer2 = videojs('videojs-frames-player2',{
             html5: {
@@ -133,7 +150,7 @@
                     overrideNative: true // NEW OVERIDE NATIVE::
                 } 
             },
-            preload: 'metadata',
+           //preload: 'metadata',
             inactivityTimeout: 0,
             playbackRates: [0.5, 1, 1.5, 2],      
             controlBar: {
@@ -141,6 +158,17 @@
                     inline: false
                 }
             }
+        }, function(){
+
+            console.log('Ready...');
+
+            var frames = this.frames({
+                meta: '/assets/celeb.json',
+                //network: '/assets/alladin.json',
+                frameRate: 23.98,
+                bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin720.bif'
+            });
+
         });
 
         var overlayContent = '<div class="shortcutOverlay"><h2>Shortcuts</h2><ul>' +
@@ -157,11 +185,6 @@
                 end: 'playing',
                 align: 'top-right'
             }]
-        });
-
-        var frames = omPlayer2.frames({
-            framerate: 23.98,
-            bif: 'https://d3edqwp3msshbp.cloudfront.net/aladdin720.bif'
         });
 
         // Moving this outside of plugin for know!

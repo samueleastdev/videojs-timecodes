@@ -37,6 +37,46 @@
     }
 }
 
+.vis-item.vis-box {
+    border-radius: 2px !important;
+}
+
+.vis-item {
+    font-size: 12px !important;
+    background: #2e3448 !important;
+    color: #fff !important;
+    border-color: #7358AC !important;
+}
+
+.vis-time-axis .vis-text {
+    font-size: 12px !important;
+}
+
+/* this is needed to prevent inconsistencies with cursor for bif */
+.vjs-load-progress {
+  pointer-events: none;
+}
+
+.vjsom-wrap {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.vjsom-track {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background: #676D7E;
+}
+
+.vjsom-marker {
+    position: absolute;
+    height: 50px;
+    width: 1%;
+    background: #E2EAF3;
+}
+
 .vjs-frames .vjs-overlay-background {
     background-color: rgba(46, 52, 72, 0.8);
     padding: 20px;

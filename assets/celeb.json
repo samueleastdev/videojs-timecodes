@@ -1,0 +1,753 @@
+[{
+    "Timestamp": 0,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Will Smith",
+        "Id": "4kW8tO",
+        "Confidence": 94,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.116875000298,
+                "Height": 0.27500000596,
+                "Left": 0.585624992847,
+                "Top": 0.110294118524
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.631751298904,
+                "Y": 0.214064449072
+            }, {
+                "Type": "eyeRight",
+                "X": 0.662062704563,
+                "Y": 0.222153365612
+            }, {
+                "Type": "nose",
+                "X": 0.62791287899,
+                "Y": 0.244186609983
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.6219856143,
+                "Y": 0.311377584934
+            }, {
+                "Type": "mouthRight",
+                "X": 0.646481394768,
+                "Y": 0.319719463587
+            }],
+            "Pose": {
+                "Roll": 8.33347415924,
+                "Yaw": -34.8300971985,
+                "Pitch": 17.6007232666
+            },
+            "Quality": {
+                "Brightness": 76.8460235596,
+                "Sharpness": 96.6364059448
+            },
+            "Confidence": 99.9900665283
+        }
+    }
+},{
+    "Timestamp": 17475,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Naomi Scott",
+        "Id": "4kW8tO",
+        "Confidence": 94,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.116875000298,
+                "Height": 0.27500000596,
+                "Left": 0.585624992847,
+                "Top": 0.110294118524
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.631751298904,
+                "Y": 0.214064449072
+            }, {
+                "Type": "eyeRight",
+                "X": 0.662062704563,
+                "Y": 0.222153365612
+            }, {
+                "Type": "nose",
+                "X": 0.62791287899,
+                "Y": 0.244186609983
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.6219856143,
+                "Y": 0.311377584934
+            }, {
+                "Type": "mouthRight",
+                "X": 0.646481394768,
+                "Y": 0.319719463587
+            }],
+            "Pose": {
+                "Roll": 8.33347415924,
+                "Yaw": -34.8300971985,
+                "Pitch": 17.6007232666
+            },
+            "Quality": {
+                "Brightness": 76.8460235596,
+                "Sharpness": 96.6364059448
+            },
+            "Confidence": 99.9900665283
+        }
+    }
+}, {
+    "Timestamp": 17976,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Naomi Scott",
+        "Id": "4kW8tO",
+        "Confidence": 55,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.119999997318,
+                "Height": 0.282352954149,
+                "Left": 0.599375009537,
+                "Top": 0.129411771894
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.640067517757,
+                "Y": 0.238251358271
+            }, {
+                "Type": "eyeRight",
+                "X": 0.678875207901,
+                "Y": 0.243683516979
+            }, {
+                "Type": "nose",
+                "X": 0.648959755898,
+                "Y": 0.274959295988
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.637915015221,
+                "Y": 0.340979963541
+            }, {
+                "Type": "mouthRight",
+                "X": 0.667522192001,
+                "Y": 0.345799773932
+            }],
+            "Pose": {
+                "Roll": 4.04214525223,
+                "Yaw": -15.9253721237,
+                "Pitch": 15.913854599
+            },
+            "Quality": {
+                "Brightness": 75.9662857056,
+                "Sharpness": 98.0981445312
+            },
+            "Confidence": 100
+        }
+    }
+}, {
+    "Timestamp": 18476,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Naomi Scott",
+        "Id": "4kW8tO",
+        "Confidence": 66,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.11874999851,
+                "Height": 0.280882358551,
+                "Left": 0.59500002861,
+                "Top": 0.129411771894
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.633983492851,
+                "Y": 0.237916097045
+            }, {
+                "Type": "eyeRight",
+                "X": 0.675021111965,
+                "Y": 0.239070504904
+            }, {
+                "Type": "nose",
+                "X": 0.647138357162,
+                "Y": 0.277984648943
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.635508000851,
+                "Y": 0.344480395317
+            }, {
+                "Type": "mouthRight",
+                "X": 0.666841447353,
+                "Y": 0.346070855856
+            }],
+            "Pose": {
+                "Roll": 1.01789689064,
+                "Yaw": -11.4101696014,
+                "Pitch": 13.5515365601
+            },
+            "Quality": {
+                "Brightness": 72.4648284912,
+                "Sharpness": 97.4680633545
+            },
+            "Confidence": 99.9771575928
+        }
+    }
+}, {
+    "Timestamp": 18977,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Naomi Scott",
+        "Id": "4kW8tO",
+        "Confidence": 81,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.127499997616,
+                "Height": 0.298529416323,
+                "Left": 0.575625002384,
+                "Top": 0.116176471114
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.618216872215,
+                "Y": 0.234063789248
+            }, {
+                "Type": "eyeRight",
+                "X": 0.66082650423,
+                "Y": 0.233561322093
+            }, {
+                "Type": "nose",
+                "X": 0.632903695107,
+                "Y": 0.273476064205
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.620749652386,
+                "Y": 0.342477560043
+            }, {
+                "Type": "mouthRight",
+                "X": 0.653708934784,
+                "Y": 0.343103051186
+            }],
+            "Pose": {
+                "Roll": -0.0550430417061,
+                "Yaw": -10.3335390091,
+                "Pitch": 12.3234462738
+            },
+            "Quality": {
+                "Brightness": 76.2276382446,
+                "Sharpness": 98.0981445312
+            },
+            "Confidence": 99.9967651367
+        }
+    }
+}, {
+    "Timestamp": 30905,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm3092471"],
+        "Name": "Marwan Kenzari",
+        "Id": "47V4G9",
+        "Confidence": 96,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.0925000011921,
+                "Height": 0.217647060752,
+                "Left": 0.654375016689,
+                "Top": 0.304411768913
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.682403206825,
+                "Y": 0.397693902254
+            }, {
+                "Type": "eyeRight",
+                "X": 0.711349785328,
+                "Y": 0.381594449282
+            }, {
+                "Type": "nose",
+                "X": 0.694293737411,
+                "Y": 0.440874487162
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.692291796207,
+                "Y": 0.475470066071
+            }, {
+                "Type": "mouthRight",
+                "X": 0.712699890137,
+                "Y": 0.468321859837
+            }],
+            "Pose": {
+                "Roll": -12.5464096069,
+                "Yaw": -15.1337614059,
+                "Pitch": -2.82474589348
+            },
+            "Quality": {
+                "Brightness": 66.7159805298,
+                "Sharpness": 92.2739028931
+            },
+            "Confidence": 99.9669113159
+        }
+    }
+}, {
+    "Timestamp": 31406,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm3092471"],
+        "Name": "Marwan Kenzari",
+        "Id": "47V4G9",
+        "Confidence": 98,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.09375,
+                "Height": 0.220588237047,
+                "Left": 0.653750002384,
+                "Top": 0.289705872536
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.68120187521,
+                "Y": 0.387694954872
+            }, {
+                "Type": "eyeRight",
+                "X": 0.710025250912,
+                "Y": 0.368962019682
+            }, {
+                "Type": "nose",
+                "X": 0.694620907307,
+                "Y": 0.430937677622
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.693125009537,
+                "Y": 0.462155967951
+            }, {
+                "Type": "mouthRight",
+                "X": 0.713203966618,
+                "Y": 0.453232884407
+            }],
+            "Pose": {
+                "Roll": -14.6329088211,
+                "Yaw": -16.6480560303,
+                "Pitch": -1.8795183897
+            },
+            "Quality": {
+                "Brightness": 66.9221878052,
+                "Sharpness": 92.2739028931
+            },
+            "Confidence": 99.9518051147
+        }
+    }
+}, {
+    "Timestamp": 38913,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm3092471"],
+        "Name": "Marwan Kenzari",
+        "Id": "47V4G9",
+        "Confidence": 91,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.0743750035763,
+                "Height": 0.17499999702,
+                "Left": 0.51437497139,
+                "Top": 0.229411765933
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.537110686302,
+                "Y": 0.299037456512
+            }, {
+                "Type": "eyeRight",
+                "X": 0.563399195671,
+                "Y": 0.292319893837
+            }, {
+                "Type": "nose",
+                "X": 0.544910430908,
+                "Y": 0.328791767359
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.542163074017,
+                "Y": 0.368655204773
+            }, {
+                "Type": "mouthRight",
+                "X": 0.56220895052,
+                "Y": 0.365720242262
+            }],
+            "Pose": {
+                "Roll": -5.32507514954,
+                "Yaw": -20.1383399963,
+                "Pitch": 7.50738763809
+            },
+            "Quality": {
+                "Brightness": 39.3163604736,
+                "Sharpness": 86.9320602417
+            },
+            "Confidence": 99.9671478271
+        }
+    }
+}, {
+    "Timestamp": 39414,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm3092471"],
+        "Name": "Marwan Kenzari",
+        "Id": "47V4G9",
+        "Confidence": 96,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.0799999982119,
+                "Height": 0.188235297799,
+                "Left": 0.525624990463,
+                "Top": 0.222058817744
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.551067650318,
+                "Y": 0.29766318202
+            }, {
+                "Type": "eyeRight",
+                "X": 0.579879462719,
+                "Y": 0.292489498854
+            }, {
+                "Type": "nose",
+                "X": 0.566574811935,
+                "Y": 0.330066591501
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.55763399601,
+                "Y": 0.369539737701
+            }, {
+                "Type": "mouthRight",
+                "X": 0.578033268452,
+                "Y": 0.367099702358
+            }],
+            "Pose": {
+                "Roll": -4.74674844742,
+                "Yaw": -0.081489354372,
+                "Pitch": 6.17122411728
+            },
+            "Quality": {
+                "Brightness": 29.1324462891,
+                "Sharpness": 89.912689209
+            },
+            "Confidence": 99.9794921875
+        }
+    }
+}, {
+    "Timestamp": 78286,
+    "Celebrity": {
+        "Urls": [],
+        "Name": "Germain Katanga",
+        "Id": "s9JB5w",
+        "Confidence": 50,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.154375001788,
+                "Height": 0.363235294819,
+                "Left": 0.666875004768,
+                "Top": 0.18088234961
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.727649152279,
+                "Y": 0.304373651743
+            }, {
+                "Type": "eyeRight",
+                "X": 0.774068057537,
+                "Y": 0.338231801987
+            }, {
+                "Type": "nose",
+                "X": 0.727423608303,
+                "Y": 0.347047388554
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.709381699562,
+                "Y": 0.427415639162
+            }, {
+                "Type": "mouthRight",
+                "X": 0.746403932571,
+                "Y": 0.461737185717
+            }],
+            "Pose": {
+                "Roll": 18.5650920868,
+                "Yaw": -27.5194740295,
+                "Pitch": 17.4961795807
+            },
+            "Quality": {
+                "Brightness": 55.993598938,
+                "Sharpness": 89.912689209
+            },
+            "Confidence": 99.334564209
+        }
+    }
+}, {
+    "Timestamp": 78787,
+    "Celebrity": {
+        "Urls": [],
+        "Name": "Germain Katanga",
+        "Id": "s9JB5w",
+        "Confidence": 96,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.16249999404,
+                "Height": 0.382352948189,
+                "Left": 0.653124988079,
+                "Top": 0.172058820724
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.716637432575,
+                "Y": 0.316076636314
+            }, {
+                "Type": "eyeRight",
+                "X": 0.763617992401,
+                "Y": 0.342385530472
+            }, {
+                "Type": "nose",
+                "X": 0.715212404728,
+                "Y": 0.363397836685
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.702485024929,
+                "Y": 0.451103299856
+            }, {
+                "Type": "mouthRight",
+                "X": 0.737062692642,
+                "Y": 0.472277641296
+            }],
+            "Pose": {
+                "Roll": 14.9868936539,
+                "Yaw": -31.0167980194,
+                "Pitch": 15.7680606842
+            },
+            "Quality": {
+                "Brightness": 55.5298995972,
+                "Sharpness": 92.2739028931
+            },
+            "Confidence": 98.8878097534
+        }
+    }
+}, {
+    "Timestamp": 79287,
+    "Celebrity": {
+        "Urls": [],
+        "Name": "Germain Katanga",
+        "Id": "s9JB5w",
+        "Confidence": 50,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.15937499702,
+                "Height": 0.375,
+                "Left": 0.666249990463,
+                "Top": 0.22499999404
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.728389501572,
+                "Y": 0.36284250021
+            }, {
+                "Type": "eyeRight",
+                "X": 0.77623963356,
+                "Y": 0.391686975956
+            }, {
+                "Type": "nose",
+                "X": 0.730880498886,
+                "Y": 0.401702702045
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.713910996914,
+                "Y": 0.497469723225
+            }, {
+                "Type": "mouthRight",
+                "X": 0.749373674393,
+                "Y": 0.516761004925
+            }],
+            "Pose": {
+                "Roll": 15.5522089005,
+                "Yaw": -28.1199188232,
+                "Pitch": 22.2909202576
+            },
+            "Quality": {
+                "Brightness": 53.5446929932,
+                "Sharpness": 73.442237854
+            },
+            "Confidence": 99.2976455688
+        }
+    }
+}, {
+    "Timestamp": 97222,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm0624574"],
+        "Name": "Anna Nehrebecka",
+        "Id": "3Xk1ld8",
+        "Confidence": 92,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.0281249992549,
+                "Height": 0.0661764740944,
+                "Left": -0.00249999994412,
+                "Top": 0.244117647409
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.00581129919738,
+                "Y": 0.270768463612
+            }, {
+                "Type": "eyeRight",
+                "X": 0.0147537281737,
+                "Y": 0.268452644348
+            }, {
+                "Type": "nose",
+                "X": 0.0082627274096,
+                "Y": 0.28128683567
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.00779071589932,
+                "Y": 0.296366125345
+            }, {
+                "Type": "mouthRight",
+                "X": 0.0143189616501,
+                "Y": 0.294377565384
+            }],
+            "Pose": {
+                "Roll": -4.89321994781,
+                "Yaw": -24.1555995941,
+                "Pitch": 7.8630361557
+            },
+            "Quality": {
+                "Brightness": 42.3269042969,
+                "Sharpness": 21.0221672058
+            },
+            "Confidence": 99.9026870728
+        }
+    }
+}, {
+    "Timestamp": 102143,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Naomi Scott",
+        "Id": "4kW8tO",
+        "Confidence": 95,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.254999995232,
+                "Height": 0.600000023842,
+                "Left": 0.183125004172,
+                "Top": 0.172058820724
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.268736958504,
+                "Y": 0.426301181316
+            }, {
+                "Type": "eyeRight",
+                "X": 0.353485882282,
+                "Y": 0.409999847412
+            }, {
+                "Type": "nose",
+                "X": 0.337978363037,
+                "Y": 0.508161842823
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.279854267836,
+                "Y": 0.62304776907
+            }, {
+                "Type": "mouthRight",
+                "X": 0.36116284132,
+                "Y": 0.604706287384
+            }],
+            "Pose": {
+                "Roll": -6.04938411713,
+                "Yaw": 20.709400177,
+                "Pitch": -1.88842093945
+            },
+            "Quality": {
+                "Brightness": 38.6849327087,
+                "Sharpness": 98.0981445312
+            },
+            "Confidence": 99.9992752075
+        }
+    }
+}, {
+    "Timestamp": 103144,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Naomi Scott",
+        "Id": "4kW8tO",
+        "Confidence": 50,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.267500013113,
+                "Height": 0.629411756992,
+                "Left": 0.173749998212,
+                "Top": 0.157352939248
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.264774352312,
+                "Y": 0.419466406107
+            }, {
+                "Type": "eyeRight",
+                "X": 0.35074442625,
+                "Y": 0.411108613014
+            }, {
+                "Type": "nose",
+                "X": 0.329328149557,
+                "Y": 0.506630301476
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.27857670188,
+                "Y": 0.638554096222
+            }, {
+                "Type": "mouthRight",
+                "X": 0.353285610676,
+                "Y": 0.628175199032
+            }],
+            "Pose": {
+                "Roll": -3.90359258652,
+                "Yaw": 19.1296749115,
+                "Pitch": 4.40922737122
+            },
+            "Quality": {
+                "Brightness": 34.1876373291,
+                "Sharpness": 98.57371521
+            },
+            "Confidence": 99.9998931885
+        }
+    }
+}, {
+    "Timestamp": 103645,
+    "Celebrity": {
+        "Urls": ["www.imdb.com\/name\/nm4305463"],
+        "Name": "Naomi Scott",
+        "Id": "4kW8tO",
+        "Confidence": 50,
+        "Face": {
+            "BoundingBox": {
+                "Width": 0.253125011921,
+                "Height": 0.595588207245,
+                "Left": 0.182500004768,
+                "Top": 0.169117644429
+            },
+            "Landmarks": [{
+                "Type": "eyeLeft",
+                "X": 0.266154110432,
+                "Y": 0.406610250473
+            }, {
+                "Type": "eyeRight",
+                "X": 0.352470129728,
+                "Y": 0.39466163516
+            }, {
+                "Type": "nose",
+                "X": 0.334785312414,
+                "Y": 0.485317647457
+            }, {
+                "Type": "mouthLeft",
+                "X": 0.283728659153,
+                "Y": 0.619850337505
+            }, {
+                "Type": "mouthRight",
+                "X": 0.357427418232,
+                "Y": 0.604145348072
+            }],
+            "Pose": {
+                "Roll": -4.83348083496,
+                "Yaw": 18.9465789795,
+                "Pitch": 2.51383638382
+            },
+            "Quality": {
+                "Brightness": 37.4330329895,
+                "Sharpness": 98.0981445312
+            },
+            "Confidence": 99.9893188477
+        }
+    }
+}]

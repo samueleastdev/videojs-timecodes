@@ -13,7 +13,7 @@ import bifMouseTimeDisplay from './components/bif-mouse-time-display.js';
 
 videojs.registerComponent('BIFMouseTimeDisplay', bifMouseTimeDisplay);
 
-const VjsSeekBar = videojs.getComponent('SeekBar');
+const VjsSeekBar = videojs.getComponent('SeekBar'); 
 
 const vjsSeekBarChildren = VjsSeekBar.prototype.options_.children;
 
@@ -29,9 +29,9 @@ const Component = videojs.getComponent('Component');
 // Default options for the plugin.
 const defaults = {
     format: 'time', 
-    frameRate: 24,
     clippingEnabled: true,
-    clippingDisplayed: false
+    clippingDisplayed: false,
+    clippingUi: false
 };
 
 /*
@@ -71,102 +71,429 @@ class Frames extends Plugin {
 
         this.options = videojs.mergeOptions(defaults, options);
 
-        // Hide the remaining time replaced by timecode
-        this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide();
-
         this.player.ready(() => {
 
             this.player.addClass('vjs-frames');
 
-            this.createTimecodeMenu();
+            var that = this;
 
-            this.createTimeDisplay(); 
+            // ACTION FRAMERATE IF SET
+            if(this.options.frameRate){
 
-            // CHECK FO BIF
+                this.initTimecode();
+
+            }
+
+            // ACTION CLIPPING IF SET
+            if(this.options.clippingEnabled){
+
+                this.initClipping();
+
+            }
+
+            // ACTION BIF IF SET
             if(this.options.bif){
 
-                var that = this;
+                this.initBif();
 
-                // Check if clipping should be enabled
-                if(this.options.clippingEnabled){
+            }
 
-                    this.one(player, ['timeupdate'], function(){
+            // ACTION META IF SET
+            if(this.options.meta){
 
-                        that.createClippingMenu();
+                this.initMetaTimeline();
 
-                    });
+            }
 
-                }
-                
-                const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
-               
-                this.player.addClass('video-has-bif');
+            // ACTION NETWORk IF SET
+            if(this.options.network){
 
-                const request = new XMLHttpRequest();
-
-                request.open('GET', this.options.bif, true);
-
-                request.responseType = 'arraybuffer';
-
-                request.onload = (event) => {
-
-                    if (event.target.status !== 200) {
-                      return;
-                    }
-
-                    BIFMouseTimeDisplay.render({
-                      data: event.target.response,
-                    });
-
-                    BIFMouseTimeDisplay.renderSlider({
-                      data: event.target.response,
-                    });
-
-                };
-
-                request.send(null);
-
-                this.player.controlBar.progressControl.on('mousemove', function(event) {
-
-                    if(that.options.clippingDisplayed === false){
-
-                        BIFMouseTimeDisplay.handleProgressBarMove(event, this.el().offsetLeft);
-
-                    }
-                 
-                });
-
-                this.player.controlBar.progressControl.on('mouseout', function(event) {
-
-                    if(that.options.clippingDisplayed === false){
-
-                        BIFMouseTimeDisplay.handleProgressBarOut();
-
-                    }
-
-                });
-
-                // Add listners for bif clipping
-                this.on('updateClipping', this.updateClipping);
-
-                this.on('partialRestore', this.partialRestore);
-
-                this.on(player, ['timeupdate'], this.updateProgressCircle);
+                this.initMetaNetwork();
 
             }
 
         });
 
+    }
+
+    initTimecode(){
+
+        console.log('framerate');
+
+        // Hide the remaining time replaced by timecode
+        this.player.getChild('controlBar').getChild('remainingTimeDisplay').hide();
+
+        // Create timecode menu should only be set if a framerate is set
+        this.createTimecodeMenu();
+
+        // Show the time formatted
+        this.createTimeDisplay(); 
+
         this.on('switchTimecode', this.switchTimecode);
 
         this.on('updateDisplay', this.updateDisplay);
 
-        this.on(player, ['seeking'], this.updateDisplay);
+        this.on(this.player, ['seeking'], this.updateDisplay);
 
         this.on('seekTo', this.seekTo);
 
-        // Start the interval to listen to the player
+        // Only start the timer if framerate isset
         this.listen('time');
+
+    }
+
+    initClipping(){
+        
+        var that = this;
+
+        this.one(this.player, ['timeupdate'], function(){
+
+            that.createClippingMenu();
+
+        });
+
+    }
+
+    initBif(){
+
+        var that = this;
+
+        const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
+               
+        this.player.addClass('video-has-bif');
+
+        const request = new XMLHttpRequest();
+
+        request.open('GET', this.options.bif, true);
+
+        request.responseType = 'arraybuffer';
+
+        request.onload = (event) => {
+
+            if (event.target.status !== 200) {
+              return;
+            }
+
+            BIFMouseTimeDisplay.render({
+              data: event.target.response,
+            });
+
+            BIFMouseTimeDisplay.renderSlider({
+              data: event.target.response,
+            });
+
+        };
+
+        request.send(null);
+
+        this.player.controlBar.progressControl.on('mousemove', function(event) {
+
+            if(that.options.clippingDisplayed === false){
+
+                BIFMouseTimeDisplay.handleProgressBarMove(event, this.el().offsetLeft);
+
+            }
+         
+        });
+
+        this.player.controlBar.progressControl.on('mouseout', function(event) {
+
+            if(that.options.clippingDisplayed === false){
+
+                BIFMouseTimeDisplay.handleProgressBarOut();
+
+            }
+
+        });
+
+        // Add listners for bif clipping
+        this.on('updateClipping', this.updateClipping);
+
+        this.on('partialRestore', this.partialRestore);
+
+        this.on(this.player, ['timeupdate'], this.updateProgressCircle);
+        
+    }
+
+    initMetaTimeline(){
+        
+        this.on(this.player, ['loadedmetadata'], this.createMetaDisplay);
+
+    }
+
+    initMetaNetwork(){
+        
+        this.on(this.player, ['loadedmetadata'], this.createMetaNetwork);
+
+    }
+
+    createMetaDisplay(){
+
+        var that = this;
+
+        var total = (this.player.duration()*1000);
+
+        var gDate = '1970-01-01 00:00:00 GMT'; // Needs to be the begining of the date object
+
+        const request = new XMLHttpRequest();
+
+        request.open('GET', this.options.meta, true);
+
+        request.onload = (event) => {
+
+            if (event.target.status !== 200) {
+              return;
+            }
+
+            var meta = JSON.parse(event.target.response);
+
+            var setItems = [];
+            for (var i = 0; i < meta.length; i++) {
+
+                var time = new Date(gDate);
+                time.setMilliseconds(meta[i].Timestamp);
+
+                var end = new Date(gDate);
+                end.setMilliseconds(meta[i].Timestamp + 15000);
+
+                var d = {
+                    id: i, 
+                    title: meta[i].Timestamp, 
+                    content: meta[i].Celebrity.Name, 
+                    start: time,
+                    //end: end,
+                    data: meta[i]
+                };
+
+                if(i === 3){
+                    //d.end = end; 
+                }
+                setItems.push(d);
+
+            }
+
+            var last = new Date(gDate);
+            last.setMilliseconds(total);
+
+            // DOM element where the Timeline will be attached
+            var container = document.getElementById('visualization');
+
+              // Create a DataSet (allows two way data-binding)
+            var items = new vis.DataSet(setItems);
+
+            //134000 full time in milliseconds
+
+              // Configuration for the Timeline
+            var options = {
+                start: new Date(gDate),
+                end: last,
+                min: new Date(gDate),
+                max: last,
+                editable: false,
+                showMajorLabels: false,
+                format: {
+                    minorLabels: function (date, scale, step) { 
+
+                        switch (scale) {
+                            case 'millisecond':
+                                return new Date(date).getTime() + "ms";
+                            case 'second':
+                                var seconds = Math.round(new Date(date).getTime() / 1000);
+                                return seconds + "s";
+                            case 'minute':
+                                var minutes = Math.round(new Date(date).getTime() / 1000 * 60);
+                                return minutes + "m";
+                            break;
+                            default:
+
+                        }
+
+                    },
+                    majorLabels: function (date, scale, step) { 
+                        return "" 
+                    }
+                }
+            };
+
+              // Create a Timeline
+            var timeline = new vis.Timeline(container, items, options);
+
+            timeline.addCustomTime('2017-03-04 00:01:00');
+
+            timeline.on('select', function (properties) {
+
+                var data = items.get(properties.items)[0];
+
+                if(data.data){
+                    
+                    that.player.play();
+
+                    that.seekTo({
+                        milliseconds: data.data.Timestamp
+                    });
+
+                    that.player.pause();
+
+                }
+
+            });
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        };
+
+        request.send(null);
+        
+
+    }
+
+    groupBy(objectArray, property) {
+        
+        return objectArray.reduce(function (acc, obj) {
+            var key = obj[property].Name;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(obj);
+            return acc;
+        }, {});
+    }
+
+    createMetaNetwork(){
+
+        var nodes = [];
+        var edges = null;
+        var network = null;
+
+        const request = new XMLHttpRequest();
+
+        request.open('GET', this.options.network, true);
+
+        request.onload = (event) => {
+
+            if (event.target.status !== 200) {
+              return;
+            }
+
+            var meta = JSON.parse(event.target.response);
+
+            var grouped = this.groupBy(meta, 'Label');
+
+            //console.log('grouped',grouped);
+
+            var setItems = [];
+
+            Object.keys(grouped).forEach(function(key, index) {
+
+                //console.log(index);
+                //console.log(key, grouped[key]);
+                setItems.push({
+                    id: index,  
+                    value: grouped[key].length,  
+                    label: key,  
+                    data: grouped[key] 
+                });
+
+            });
+
+            // Instantiate our network object.
+            var container = document.getElementById('mynetwork');
+
+            var nodes = new vis.DataSet(setItems);
+
+            var data = {
+                nodes: nodes,
+                //edges: edges
+            };
+            var options = {
+                nodes: {
+                    shape: 'dot',
+                    borderWidth: 0,
+                    size: 50,
+                    color: {
+                        border: '#222222',
+                        background: 'grey'
+                    },
+                    font: {
+                        color: 'black',
+                        size: 40,
+                        face: 'arial',
+                    },
+                    margin: {
+                        top: 20,
+                        bottom: 20,
+                        left: 20,
+                        right: 20
+                    }
+                },
+                physics: {
+                    forceAtlas2Based: {
+                        gravitationalConstant: -350,
+                        centralGravity: 0.05,
+                        springLength: 400,
+                        springConstant: 0.01,
+                        avoidOverlap: 50
+                    },
+                    maxVelocity: 20,
+                    minVelocity: 0,
+                    solver: 'forceAtlas2Based',
+                    timestep: 0.10,
+                    stabilization: {
+                        enabled: false,
+                        iterations: 0
+                    }
+                },
+                interaction: {
+                    multiselect: true,
+                    dragView: true
+                },
+                edges: {
+                    smooth: false,
+                    arrows: {
+                        to: true
+                    }
+                }
+            };
+            network = new vis.Network(container, data, options);
+
+            network.on( 'click', function(properties) {
+                
+                var ids = properties.nodes;
+                var clickedNodes = nodes.get(ids);
+                //console.log('I\'m clicked',clickedNodes );
+
+                var children = clickedNodes[0];
+                if(children.data){
+
+                    var newItems = [];
+                    for (var i = 0; i < children.data.length; i++) {
+
+                        newItems.push({
+                            id: i,  
+                            value: 1,  
+                            label: 'Timestamp' + children.data[i].Timestamp,  
+                            data: children.data[i]
+                        });
+
+                    }
+
+                    nodes.clear();
+                    nodes.update(newItems);
+                    
+                    network.redraw();
+
+                }
+
+            });
+
+                
+
+        };
+
+        request.send(null);
+
+        return;
+        
 
     }
 
@@ -206,7 +533,7 @@ class Frames extends Plugin {
 
     createTimecodeMenu(){
  
-        var that = this; 
+        var that = this;
 
         var TimecodeButton = videojs.extend(MenuButton, {
             constructor: function() {
@@ -292,64 +619,11 @@ class Frames extends Plugin {
 
     createClippingMenu(){
  
-        var that = this; 
+        var that = this;
 
-        this.player.getChild('controlBar').getChild('progressControl').addChild('ClippingBar', {text: 'dvs'});
+        console.log('createClippingMenu');
 
-        var slider = document.getElementById(this.player.id() + '_range');
-
-        noUiSlider.create(slider, {
-            start: [0, that.totalFrames()],
-            connect: true,
-            step: 1,
-            range: {
-                'min': 0,
-                'max': that.totalFrames()
-            }
-        });
-
-        var base = slider.getElementsByClassName('noUi-base')[0];
-
-        var elProgress = document.createElement('div');
-
-        elProgress.className = 'noUi-progress';
-
-        base.appendChild(elProgress);        
-
-        const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
-
-        slider.noUiSlider.on('start', function(ind, ui, event){
-
-            that.player.addClass('video-is-dragging');
-
-        });
-
-        slider.noUiSlider.on('update', function(ind, ui, event){
-
-            var percentage = Math.floor((event[ui]/parseInt(that.totalFrames()))*100);
-
-            that.player.pause();
-
-            var lower = (slider.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x);
-            var upper = (slider.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x);
-
-            BIFMouseTimeDisplay.handleSliderMove({
-                left: (ui === 0) ? Math.floor(lower + 10) : Math.floor(upper + 10),
-                percentage: percentage
-            });
-
-            that.seekTo({
-                frame: Math.round(event[ui]),
-                ui: ui
-            });
-
-        });
-
-        slider.noUiSlider.on('end', function(ind, ui, event){
-
-            BIFMouseTimeDisplay.handleSliderOut();
-
-        });
+        this.player.getChild('controlBar').getChild('progressControl').addChild('ClippingBar', {text: ''});
 
         this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
 
@@ -377,6 +651,9 @@ class Frames extends Plugin {
                 var options = [{
                     title: 'Enable Clipping',
                     id: 'enable'
+                },{
+                    title: 'Partial Restore',
+                    id: 'restore'
                 }];
 
                 var i;
@@ -420,13 +697,88 @@ class Frames extends Plugin {
 
     }
 
-    updateProgressCircle(){
+    initClippingUi(){
+
+        // Only init once
+        if(this.options.clippingUi === true){
+            
+            return;
+        
+        }
+
+        this.options.clippingUi = true;
+
+        var that = this;
 
         var slider = document.getElementById(this.player.id() + '_range');
 
+        noUiSlider.create(slider, {
+            start: [0, that.totalFrames()],
+            connect: true,
+            step: 1,
+            range: {
+                'min': 0,
+                'max': that.totalFrames()
+            }
+        });
+
+        var base = slider.getElementsByClassName('noUi-base')[0];
+
+        var elProgress = document.createElement('div');
+
+        elProgress.className = 'noUi-progress';
+
+        base.appendChild(elProgress);        
+
+        const { BIFMouseTimeDisplay } = this.player.controlBar.progressControl.seekBar;
+
+        slider.noUiSlider.on('start', function(ind, ui, event){
+
+            that.player.addClass('video-is-dragging');
+
+        });
+
+        slider.noUiSlider.on('update', function(ind, ui, event){
+
+            var percentage = Math.floor((event[ui]/parseInt(that.totalFrames()))*100);
+
+            that.player.pause();
+
+            var lower = (slider.getElementsByClassName('noUi-handle-lower')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x);
+            var upper = (slider.getElementsByClassName('noUi-handle-upper')[0].getBoundingClientRect().x - that.player.el().getBoundingClientRect().x);
+
+            BIFMouseTimeDisplay.handleSliderMove({
+                left: (ui === 0) ? Math.floor(lower + 10) : Math.floor(upper + 10),
+                percentage: percentage
+            });
+
+            console.log({
+                frame: Math.round(event[ui]),
+                ui: ui
+            });
+
+            that.seekTo({
+                frame: Math.round(event[ui]),
+                ui: ui
+            });
+
+        });
+
+        slider.noUiSlider.on('end', function(ind, ui, event){
+
+            BIFMouseTimeDisplay.handleSliderOut();
+
+        });
+
+    }
+
+    updateProgressCircle(){
+
+        var slider = document.getElementById(this.player.id() + '_range');
         var base = slider.getElementsByClassName('noUi-progress')[0];
-        
-        base.style.left = (this.player.currentTime() / this.player.duration() * 100) + '%';
+        if(base){
+            base.style.left = (this.player.currentTime() / this.player.duration() * 100) + '%';
+        }
 
     }
 
@@ -440,27 +792,42 @@ class Frames extends Plugin {
                 
                 if(this.options.clippingDisplayed){
 
+                    // Clipping is disable
                     document.getElementById(json.item).innerText = 'Enable Clipping';
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').show();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').hide();
 
-                    shortcutOverlay.style.display = 'none';
+                    if(shortcutOverlay){
+                        shortcutOverlay.style.display = 'none';
+                    }
 
                     this.options.clippingDisplayed = false;
                 
                 }else{ 
 
+                    // Hide the focus bif functionality
+                    var elements = document.getElementsByClassName('bif-thumbnail');
+
+                    for (var i = 0; i < elements.length; i++){
+                        elements[i].style.display = 'none';
+                    }
+
+                    // Clipping is enabled
                     document.getElementById(json.item).innerText = 'Disable Clipping';
                     
                     this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').hide();
 
                     this.player.getChild('controlBar').getChild('progressControl').getChild('ClippingBar').show();
 
-                    shortcutOverlay.style.display = 'block';
+                    if(shortcutOverlay){
+                        shortcutOverlay.style.display = 'block';
+                    }
 
                     this.options.clippingDisplayed = true;
+
+                    this.initClippingUi();
  
                 }
 
@@ -600,8 +967,16 @@ class Frames extends Plugin {
     totalFrames() {
 
         if(this.player.duration()){
-        
-            return Math.floor(this.player.duration().toFixed(5) * this.options.frameRate);
+            
+            if(this.options.frameRate){
+
+                return Math.floor(this.player.duration().toFixed(5) * this.options.frameRate);
+
+            }else{
+
+                return Math.floor(this.player.duration());
+                
+            }
         
         }else{
             
