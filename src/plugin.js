@@ -262,7 +262,9 @@ class Frames extends Plugin {
                     content: meta[i].Celebrity.Name, 
                     start: time,
                     //end: end,
-                    data: meta[i]
+                    data: meta[i],
+                    group:"Celebrity", 
+                    className:"celebs"
                 };
 
                 if(i === 3){
@@ -278,6 +280,10 @@ class Frames extends Plugin {
             // DOM element where the Timeline will be attached
             var container = document.getElementById('visualization');
 
+            var groups = new vis.DataSet([
+                {"content": "Celebrity", "id": "Celebrity", "value": 1, className:'celebs'},
+            ]);
+
               // Create a DataSet (allows two way data-binding)
             var items = new vis.DataSet(setItems);
 
@@ -285,12 +291,38 @@ class Frames extends Plugin {
 
               // Configuration for the Timeline
             var options = {
+                groupOrder: function (a, b) {
+                  return a.value - b.value;
+                },
+                groupOrderSwap: function (a, b, groups) {
+                    var v = a.value;
+                    a.value = b.value;
+                    b.value = v;
+                },
+                /*groupTemplate: function(group){
+                  var container = document.createElement('div');
+                  var label = document.createElement('span');
+                  label.innerHTML = group.content + ' ';
+                  container.insertAdjacentElement('afterBegin',label);
+                  var hide = document.createElement('button');
+                  hide.innerHTML = 'hide';
+                  hide.style.fontSize = 'small';
+                  hide.addEventListener('click',function(){
+                    groups.update({id: group.id, visible: false});
+                  });
+                  container.insertAdjacentElement('beforeEnd',hide);
+                  return container;
+                },*/
+                orientation: 'both',
+                editable: true,
+                groupEditable: true,
                 start: new Date(gDate),
                 end: last,
                 min: new Date(gDate),
                 max: last,
                 editable: false,
                 showMajorLabels: false,
+                //showCurrentTime: false,
                 format: {
                     minorLabels: function (date, scale, step) { 
 
@@ -315,10 +347,22 @@ class Frames extends Plugin {
                 }
             };
 
-              // Create a Timeline
-            var timeline = new vis.Timeline(container, items, options);
+            // Create a Timeline
+            var timeline = new vis.Timeline(container);
+            timeline.setOptions(options);
+            timeline.setGroups(groups);
+            timeline.setItems(items);
+            
+            var marker = new Date(gDate);
+            timeline.addCustomTime(marker, 1);
+            
+            this.on(this.player, ['timeupdate'], function(event){
+                
+                var time = this.player.currentTime()
+                marker.setSeconds(time);
+                timeline.setCustomTime(marker, 1);
 
-            timeline.addCustomTime('2017-03-04 00:01:00');
+            });
 
             timeline.on('select', function (properties) {
 
@@ -471,7 +515,7 @@ class Frames extends Plugin {
                         newItems.push({
                             id: i,  
                             value: 1,  
-                            label: 'Timestamp' + children.data[i].Timestamp,  
+                            label: 't' + children.data[i].Timestamp,  
                             data: children.data[i]
                         });
 

@@ -3190,6 +3190,8 @@ function (_Plugin) {
   };
 
   _proto.createMetaDisplay = function createMetaDisplay() {
+    var _this2 = this;
+
     var that = this;
     var total = this.player.duration() * 1000;
     var gDate = '1970-01-01 00:00:00 GMT'; // Needs to be the begining of the date object
@@ -3198,6 +3200,8 @@ function (_Plugin) {
     request.open('GET', this.options.meta, true);
 
     request.onload = function (event) {
+      var _options;
+
       if (event.target.status !== 200) {
         return;
       }
@@ -3216,7 +3220,9 @@ function (_Plugin) {
           content: meta[i].Celebrity.Name,
           start: time,
           //end: end,
-          data: meta[i]
+          data: meta[i],
+          group: "Celebrity",
+          className: "celebs"
         };
 
         setItems.push(d);
@@ -3225,44 +3231,84 @@ function (_Plugin) {
       var last = new Date(gDate);
       last.setMilliseconds(total); // DOM element where the Timeline will be attached
 
-      var container = document.getElementById('visualization'); // Create a DataSet (allows two way data-binding)
+      var container = document.getElementById('visualization');
+      var groups = new vis.DataSet([{
+        "content": "Celebrity",
+        "id": "Celebrity",
+        "value": 1,
+        className: 'celebs'
+      }]); // Create a DataSet (allows two way data-binding)
 
       var items = new vis.DataSet(setItems); //134000 full time in milliseconds
       // Configuration for the Timeline
 
-      var options = {
+      var options = (_options = {
+        groupOrder: function groupOrder(a, b) {
+          return a.value - b.value;
+        },
+        groupOrderSwap: function groupOrderSwap(a, b, groups) {
+          var v = a.value;
+          a.value = b.value;
+          b.value = v;
+        },
+
+        /*groupTemplate: function(group){
+          var container = document.createElement('div');
+          var label = document.createElement('span');
+          label.innerHTML = group.content + ' ';
+          container.insertAdjacentElement('afterBegin',label);
+          var hide = document.createElement('button');
+          hide.innerHTML = 'hide';
+          hide.style.fontSize = 'small';
+          hide.addEventListener('click',function(){
+            groups.update({id: group.id, visible: false});
+          });
+          container.insertAdjacentElement('beforeEnd',hide);
+          return container;
+        },*/
+        orientation: 'both',
+        editable: true,
+        groupEditable: true,
         start: new Date(gDate),
         end: last,
         min: new Date(gDate),
-        max: last,
-        editable: false,
-        showMajorLabels: false,
-        format: {
-          minorLabels: function minorLabels(date, scale, step) {
-            switch (scale) {
-              case 'millisecond':
-                return new Date(date).getTime() + "ms";
+        max: last
+      }, _options["editable"] = false, _options.showMajorLabels = false, _options.format = {
+        minorLabels: function minorLabels(date, scale, step) {
+          switch (scale) {
+            case 'millisecond':
+              return new Date(date).getTime() + "ms";
 
-              case 'second':
-                var seconds = Math.round(new Date(date).getTime() / 1000);
-                return seconds + "s";
+            case 'second':
+              var seconds = Math.round(new Date(date).getTime() / 1000);
+              return seconds + "s";
 
-              case 'minute':
-                var minutes = Math.round(new Date(date).getTime() / 1000 * 60);
-                return minutes + "m";
-                break;
+            case 'minute':
+              var minutes = Math.round(new Date(date).getTime() / 1000 * 60);
+              return minutes + "m";
+              break;
 
-              default:
-            }
-          },
-          majorLabels: function majorLabels(date, scale, step) {
-            return "";
+            default:
           }
+        },
+        majorLabels: function majorLabels(date, scale, step) {
+          return "";
         }
-      }; // Create a Timeline
+      }, _options); // Create a Timeline
 
-      var timeline = new vis.Timeline(container, items, options);
-      timeline.addCustomTime('2017-03-04 00:01:00');
+      var timeline = new vis.Timeline(container);
+      timeline.setOptions(options);
+      timeline.setGroups(groups);
+      timeline.setItems(items);
+      var marker = new Date(gDate);
+      timeline.addCustomTime(marker, 1);
+
+      _this2.on(_this2.player, ['timeupdate'], function (event) {
+        var time = this.player.currentTime();
+        marker.setSeconds(time);
+        timeline.setCustomTime(marker, 1);
+      });
+
       timeline.on('select', function (properties) {
         var data = items.get(properties.items)[0];
 
@@ -3294,7 +3340,7 @@ function (_Plugin) {
   };
 
   _proto.createMetaNetwork = function createMetaNetwork() {
-    var _this2 = this;
+    var _this3 = this;
     var network = null;
     var request = new XMLHttpRequest();
     request.open('GET', this.options.network, true);
@@ -3306,7 +3352,7 @@ function (_Plugin) {
 
       var meta = JSON.parse(event.target.response);
 
-      var grouped = _this2.groupBy(meta, 'Label'); //console.log('grouped',grouped);
+      var grouped = _this3.groupBy(meta, 'Label'); //console.log('grouped',grouped);
 
 
       var setItems = [];
@@ -3390,7 +3436,7 @@ function (_Plugin) {
             newItems.push({
               id: i,
               value: 1,
-              label: 'Timestamp' + children.data[i].Timestamp,
+              label: 't' + children.data[i].Timestamp,
               data: children.data[i]
             });
           }

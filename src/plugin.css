@@ -38,18 +38,18 @@
 }
 
 .vis-item.vis-box {
-    border-radius: 2px !important;
+    border-radius: 5px !important;
 }
 
 .vis-item {
     font-size: 12px !important;
-    background: #2e3448 !important;
+    background: #f97b4d !important;
     color: #fff !important;
-    border-color: #7358AC !important;
+    border-color: #f97b4d !important;
 }
 
 .vis-time-axis .vis-text {
-    font-size: 12px !important;
+    font-size: 11px !important;
 }
 
 /* this is needed to prevent inconsistencies with cursor for bif */
