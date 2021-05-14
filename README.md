@@ -12,7 +12,7 @@ Framerate plugin
 npm install --save videojs-frames
 ```
 
-## Running the project locally on your computer with local server
+## Running the project locally on your computer with local server.
 
 ```sh
 git clone https://github.com/samueleastdev/videojs-timecodes.git
