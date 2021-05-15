@@ -85,7 +85,7 @@
     "jdataview": "^2.5.0",
     "lodash": "^4.17.15",
     "nouislider": "^14.0.2",
-    "video.js": "^7.6.2"
+    "video.js": "^7.12.1"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.10.2",

@@ -1,11 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [videojs-frames](#videojs-frames)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+  - [Running the project locally on your computer with local server.](#running-the-project-locally-on-your-computer-with-local-server)
+  - [Live Example](#live-example)
+  - [Usage](#usage)
+    - [`<script>` Tag](#script-tag)
+    - [Browserify/CommonJS](#browserifycommonjs)
+    - [RequireJS/AMD](#requirejsamd)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # videojs-frames
 
 Framerate plugin
 
 ## Table of Contents
 
-<!-- START doctoc -->
-<!-- END doctoc -->
 ## Installation
 
 ```sh
@@ -32,7 +47,9 @@ npm start
 
 ## Live Example
 
-[JsBin Example](https://output.jsbin.com/semolid)
+After running npm start you will see a live example here.
+
+[Live Example](http://localhost:9999/)
 
 
 ## Usage
