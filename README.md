@@ -47,10 +47,7 @@ npm start
 
 ## Live Example
 
-After running npm start you will see a live example here.
-
-[Live Example](http://localhost:9999/)
-
+After running npm start you will see a live example here http://localhost:9999
 
 ## Usage
 
